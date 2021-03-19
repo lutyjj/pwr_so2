@@ -33,8 +33,10 @@ struct Car
         float x = 0;
         float y = 0;
 
-        while (loop < 3) {
-            while (current_x < 100) {
+        while (loop < 1)
+        {
+            while (current_x < 100)
+            {
                 this->current_x = static_cast<int>(x);
                 x += speed * 1.4;
 
@@ -43,7 +45,8 @@ struct Car
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
-            while (current_y < 10) {
+            while (current_y < 10)
+            {
                 this->current_y = static_cast<int>(y);
                 y += speed * 0.8;
 
@@ -53,7 +56,8 @@ struct Car
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
-            while (current_x > 0) {
+            while (current_x > 0)
+            {
                 this->current_x = static_cast<int>(x);
                 x -= speed * 1.4;
 
@@ -63,7 +67,8 @@ struct Car
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
-            while (current_y > 0) {
+            while (current_y > 0)
+            {
                 this->current_y = static_cast<int>(y);
                 y -= speed * 0.8;
 
@@ -75,12 +80,30 @@ struct Car
 
             loop++;
         }
+
+        t->join();
     }
 };
+
+int kbhit(void)
+{
+    int ch = getch();
+
+    if (ch != ERR)
+    {
+        ungetch(ch);
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 int main()
 {
     initscr();
+    nodelay(stdscr, TRUE);
 
     vector<Car *> cars;
 
@@ -99,15 +122,17 @@ int main()
             mvprintw(car->current_y, car->current_x, "%d", car->number);
         }
         refresh();
+
+        if (kbhit())
+            break;
     }
 
     endwin();
-    for (auto car : cars)
+
+    for (auto &car : cars)
     {
-        car->t->join();
         delete car;
     }
-
     cars.clear();
 
     return 0;
