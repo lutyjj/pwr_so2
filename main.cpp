@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <vector>
+#include <random>
 
 using namespace std;
 
@@ -10,15 +11,19 @@ struct Car
 {
     int current_x = 0;
     int current_y = 0;
-    int speed = 0;
+    float speed = 0;
     int number;
     int loop = 0;
     thread *t;
 
-    Car(int number, int speed)
+    Car(int number)
     {
         this->number = number;
-        this->speed = speed;
+
+        std::random_device rd;
+        std::mt19937 rng(rd());
+        std::uniform_real_distribution<> dist(1, 4);
+        this->speed = dist(rng);
 
         t = new thread([this]() { thread_func(); });
     }
@@ -81,7 +86,7 @@ int main()
 
     for (int i = 0; i < 3; i++)
     {
-        cars.push_back(new Car(i, i+1));
+        cars.push_back(new Car(i));
     }
 
     while (true)
