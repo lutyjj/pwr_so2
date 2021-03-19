@@ -12,6 +12,7 @@ struct Car
     int current_y = 0;
     int speed = 0;
     int number;
+    int loop = 0;
     thread *t;
 
     Car(int number, int speed)
@@ -24,11 +25,50 @@ struct Car
 
     void thread_func()
     {
-        for (int i = 0; i < 100; i++)
-        {
-            this->current_x = i / speed;
+        float x = 0;
+        float y = 0;
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+        while (loop < 3) {
+            while (current_x < 100) {
+                this->current_x = static_cast<int>(x);
+                x += speed * 1.4;
+
+                if (x > 100)
+                    x = 100;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+
+            while (current_y < 10) {
+                this->current_y = static_cast<int>(y);
+                y += speed * 0.8;
+
+                if (y > 10)
+                    y = 10;
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+
+            while (current_x > 0) {
+                this->current_x = static_cast<int>(x);
+                x -= speed * 1.4;
+
+                if (x < 0)
+                    x = 0;
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+
+            while (current_y > 0) {
+                this->current_y = static_cast<int>(y);
+                y -= speed * 0.8;
+
+                if (y < 0)
+                    y = 0;
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+
+            loop++;
         }
     }
 };
@@ -51,7 +91,7 @@ int main()
 
         for (auto car : cars)
         {
-            mvprintw(0, car->current_x, "%d", car->number);
+            mvprintw(car->current_y, car->current_x, "%d", car->number);
         }
         refresh();
     }
