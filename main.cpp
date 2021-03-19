@@ -14,6 +14,7 @@ struct Car
     float speed = 0;
     int number;
     int loop = 0;
+    bool finished = false;
     thread *t;
 
     Car(int number)
@@ -33,25 +34,28 @@ struct Car
         float x = 0;
         float y = 0;
 
+        int cols = COLS - 2;
+        int lines = LINES - 2;
+
         while (loop < 1)
         {
-            while (current_x < 100)
+            while (current_x < cols - 2)
             {
                 this->current_x = static_cast<int>(x);
                 x += speed * 1.4;
 
-                if (x > 100)
-                    x = 100;
+                if (x > cols - 2)
+                    x = cols - 2;
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
-            while (current_y < 10)
+            while (current_y < lines)
             {
                 this->current_y = static_cast<int>(y);
                 y += speed * 0.8;
 
-                if (y > 10)
-                    y = 10;
+                if (y > lines)
+                    y = lines;
 
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
@@ -80,8 +84,7 @@ struct Car
 
             loop++;
         }
-
-        t->join();
+        finished = true;
     }
 };
 
@@ -119,7 +122,8 @@ int main()
 
         for (auto car : cars)
         {
-            mvprintw(car->current_y, car->current_x, "%d", car->number);
+            if (!car->finished)
+                mvprintw(car->current_y, car->current_x, "%d", car->number);
         }
         refresh();
 
@@ -131,6 +135,7 @@ int main()
 
     for (auto &car : cars)
     {
+        car->t->join();
         delete car;
     }
     cars.clear();
