@@ -126,12 +126,6 @@ int main()
     curs_set(0);
 
     vector<Car *> cars;
-
-    // for (int i = 0; i < 3; i++)
-    // {
-    //     cars.push_back(new Car(i));
-    // }
-
     thread t_spawn_car(spawn_car, ref(cars));
 
     while (true)
