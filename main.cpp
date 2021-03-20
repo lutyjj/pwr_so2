@@ -4,8 +4,12 @@
 #include <thread>
 #include <vector>
 #include <random>
+#include <atomic>
+
+#define LOOPS 1
 
 using namespace std;
+atomic_bool stop_flag;
 
 struct Car
 {
@@ -34,18 +38,18 @@ struct Car
         float x = 0;
         float y = 0;
 
-        int cols = COLS - 2;
-        int lines = LINES - 2;
+        int cols = COLS - 1;
+        int lines = LINES - 1;
 
-        while (loop < 1)
+        while (loop < LOOPS)
         {
-            while (current_x < cols - 2)
+            while (current_x < cols)
             {
                 this->current_x = static_cast<int>(x);
                 x += speed * 1.4;
 
-                if (x > cols - 2)
-                    x = cols - 2;
+                if (x > cols)
+                    x = cols;
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
@@ -103,22 +107,39 @@ int kbhit(void)
     }
 }
 
+void spawn_car(vector<Car *> &cars) {
+    int count = 0;
+    while (!stop_flag)
+    {
+        count++;
+        cars.push_back(new Car(count));
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+    }
+}
+
 int main()
 {
-    initscr();
+    stop_flag = false;
+
+    WINDOW* win = initscr();
     nodelay(stdscr, TRUE);
+    curs_set(0);
 
     vector<Car *> cars;
 
-    for (int i = 0; i < 3; i++)
-    {
-        cars.push_back(new Car(i));
-    }
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     cars.push_back(new Car(i));
+    // }
+
+    thread t_spawn_car(spawn_car, ref(cars));
 
     while (true)
     {
         clear();
         std::this_thread::sleep_for(std::chrono::milliseconds(33));
+
+            box(win, 0, 0);
 
         for (auto car : cars)
         {
@@ -127,18 +148,27 @@ int main()
         }
         refresh();
 
-        if (kbhit())
+        if (kbhit()) {
+            stop_flag = true;
             break;
+        }
     }
 
-    endwin();
+    clear();
+    addstr("Waiting for threads...\n");
+    refresh();
+
+    t_spawn_car.join();
 
     for (auto &car : cars)
     {
         car->t->join();
+        printw("Thread %d exited successfully.\n", car->number);
         delete car;
+        refresh();
     }
     cars.clear();
 
+    endwin();
     return 0;
 }
