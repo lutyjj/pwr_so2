@@ -6,7 +6,7 @@
 #include <random>
 #include <atomic>
 
-#define LOOPS 1
+#define LOOPS 3
 
 using namespace std;
 atomic_bool stop_flag;
