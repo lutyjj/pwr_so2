@@ -1,3 +1,9 @@
+// Jak samochód dogoni samochód przed nim jadący, to powinien czekać z wyprzedzeniem 
+// do momentu aż znajdzie się w obszarze, gdzie jest dopuszczalne wyprzedzanie,
+// czyli na każdej stronie / na każdej ścianie ocznaczy Pan pewien odcinek, w którym jest dopuszczalne 
+// wyprzedzanie i tylko tam będą się samochody wyprzedzały, a inaczej będą się trzymać jeden za drugim.
+
+
 #include <iostream>
 #include <ncurses.h>
 #include <chrono>
@@ -5,6 +11,7 @@
 #include <vector>
 #include <random>
 #include <atomic>
+#include <mutex>
 
 #define LOOPS 3
 #define PADDING_X 2
@@ -12,6 +19,7 @@
 
 using namespace std;
 atomic_bool stop_flag;
+mutex mtx;
 
 struct Car
 {
@@ -45,16 +53,28 @@ struct Car
 
         while (loop < LOOPS && !stop_flag)
         {
+            bool locked = false;
+
             while (current_x < cols && !stop_flag)
             {
+                if (current_x > 40 && current_x < cols - 40 && !locked) {
+                    mtx.lock();
+                    locked = true;
+                }
+
                 this->current_x = static_cast<int>(x);
                 x += speed * 1.4;
+
+                if (current_x > cols - 40 && locked) {
+                    mtx.unlock();
+                    locked = false;
+                }
 
                 if (x > cols)
                     x = cols;
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-
+            
             while (current_y < lines && !stop_flag)
             {
                 this->current_y = static_cast<int>(y);
@@ -166,6 +186,7 @@ int main()
         if (kbhit())
         {
             stop_flag = true;
+            mtx.unlock();
             break;
         }
     }
