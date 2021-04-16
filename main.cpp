@@ -43,9 +43,9 @@ struct Car
         int cols = COLS - PADDING_X - 1;
         int lines = LINES - PADDING_Y - 1;
 
-        while (loop < LOOPS)
+        while (loop < LOOPS && !stop_flag)
         {
-            while (current_x < cols)
+            while (current_x < cols && !stop_flag)
             {
                 this->current_x = static_cast<int>(x);
                 x += speed * 1.4;
@@ -55,7 +55,7 @@ struct Car
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
-            while (current_y < lines)
+            while (current_y < lines && !stop_flag)
             {
                 this->current_y = static_cast<int>(y);
                 y += speed * 0.8;
@@ -66,7 +66,7 @@ struct Car
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
-            while (current_x > PADDING_X)
+            while (current_x > PADDING_X && !stop_flag)
             {
                 this->current_x = static_cast<int>(x);
                 x -= speed * 1.4;
@@ -77,7 +77,7 @@ struct Car
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
-            while (current_y > PADDING_Y)
+            while (current_y > PADDING_Y && !stop_flag)
             {
                 this->current_y = static_cast<int>(y);
                 y -= speed * 0.8;
