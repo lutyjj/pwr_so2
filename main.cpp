@@ -111,12 +111,16 @@ int kbhit(void)
 
 void spawn_car(vector<Car *> &cars)
 {
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_int_distribution<> dist(500, 3000);
+
     int count = 0;
     while (!stop_flag)
     {
         count++;
         cars.push_back(new Car(count));
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng)));
     }
 }
 
