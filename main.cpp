@@ -48,16 +48,9 @@ int main()
     while (true)
     {
         clear();
-        std::this_thread::sleep_for(std::chrono::milliseconds(33));
+        this_thread::sleep_for(std::chrono::milliseconds(33));
 
-        //box(win, 0, 0);
         road->draw();
-
-        for (auto car : road->cars)
-        {
-            if (!car->finished)
-                mvprintw(car->current_y, car->current_x, "%d", car->number);
-        }
         refresh();
 
         if (kbhit())
@@ -72,14 +65,7 @@ int main()
     addstr("Waiting for threads...\n");
     refresh();
 
-    for (auto car : road->cars)
-    {
-        car->t->join();
-        printw("Thread %d exited successfully.\n", car->number);
-        delete car;
-        refresh();
-    }
-    road->cars.clear();
+    delete road;
 
     endwin();
     return 0;

@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include <atomic>
+#include <vector>
 #include <thread>
 #include <mutex>
 
@@ -15,8 +15,9 @@ struct Road {
     vector<Car *> cars;
     thread* t_spawn_car;
     mutex mtx;
-    
+
     Road(int x, int y);
+    ~Road();
     void draw();
 
 private:

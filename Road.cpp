@@ -13,10 +13,43 @@ Road::Road(int x, int y)
     t_spawn_car = new thread([this]() { spawn_car(); });
 }
 
+Road::~Road()
+{
+    t_spawn_car->join();
+
+    for (auto car : cars)
+    {
+        car->t->join();
+        printw("Thread %d exited successfully.\n", car->number);
+        delete car;
+        refresh();
+    }
+
+    cars.clear();
+}
+
 void Road::draw()
 {
     rectangle(0, 0, y - 1, x - 1);
     rectangle(2, 4, y - 3, x - 5);
+
+    for (int i = 0; i < cars.size(); i++) {
+        auto car = cars[i];
+
+        if (car->finished)
+            cars.erase(cars.begin() + i);
+        else
+            mvprintw(car->current_y, car->current_x, "%d", car->number);
+    }
+
+    // for (auto car : cars)
+    // {
+    //     if (!car->finished)
+    //         mvprintw(car->current_y, car->current_x, "%d", car->number);
+    //     else {
+    //         cars.erase(car);
+    //     }
+    // }
 }
 
 void Road::rectangle(int y1, int x1, int y2, int x2)
@@ -33,9 +66,9 @@ void Road::rectangle(int y1, int x1, int y2, int x2)
 
 void Road::spawn_car()
 {
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::uniform_int_distribution<> dist(500, 3000);
+    random_device rd;
+    mt19937 rng(rd());
+    uniform_int_distribution<> dist(500, 3000);
 
     int count = 0;
     while (!this->stop_flag && cars.size() < 5)
