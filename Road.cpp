@@ -15,23 +15,22 @@ Road::Road(int x, int y)
 
 Road::~Road()
 {
+    clear();
+    addstr("Waiting for threads...\n");
+    refresh();
+
     t_spawn_car->join();
 
     for (auto car : cars)
-    {
-        car->t->join();
-        printw("Thread %d exited successfully.\n", car->number);
         delete car;
-        refresh();
-    }
 
     cars.clear();
 }
 
 void Road::draw()
 {
-    rectangle(0, 0, y - 1, x - 1);
-    rectangle(2, 4, y - 3, x - 5);
+    draw_rectangle(0, 0, y - 1, x - 1);
+    draw_rectangle(2, 4, y - 3, x - 5);
 
     for (int i = 0; i < cars.size(); i++) {
         auto car = cars[i];
@@ -52,7 +51,7 @@ void Road::draw()
     // }
 }
 
-void Road::rectangle(int y1, int x1, int y2, int x2)
+void Road::draw_rectangle(int y1, int x1, int y2, int x2)
 {
     mvhline(y1, x1, 0, x2 - x1);
     mvhline(y2, x1, 0, x2 - x1);
@@ -77,4 +76,12 @@ void Road::spawn_car()
         cars.push_back(new Car(count, this));
         std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng)));
     }
+}
+
+void Road::stop() {
+    stop_flag = true;
+    mtx.unlock();
+
+
+    delete this;
 }

@@ -1,3 +1,4 @@
+#include <ncurses.h>
 #include <random>
 #include <mutex>
 #include "Car.h"
@@ -14,6 +15,13 @@ Car::Car(int number, Road *road)
     this->speed = dist(rng);
 
     t = new thread([this]() { thread_func(); });
+}
+
+Car::~Car() {
+    t->join();
+
+    printw("Thread %d exited successfully.\n", number);
+    refresh();
 }
 
 void Car::thread_func()

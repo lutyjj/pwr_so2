@@ -8,19 +8,23 @@
 
 using namespace std;
 
-struct Road;
+class Road;
 
-struct Car
+class Car
 {
-    int current_x = 0 + PADDING_X;
-    int current_y = 0 + PADDING_Y;
+private:
+    void thread_func();
     float speed = 0;
-    int number;
     int loop = 0;
-    bool finished = false;
     thread *t;
     Road* road;
 
+public:
     Car(int number, Road* road);
-    void thread_func();
+    ~Car();
+    
+    bool finished = false;
+    int current_x = 0 + PADDING_X;
+    int current_y = 0 + PADDING_Y;
+    int number = 0;
 };

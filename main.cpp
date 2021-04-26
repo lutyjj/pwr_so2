@@ -4,21 +4,11 @@
 // wyprzedzanie i tylko tam będą się samochody wyprzedzały, a inaczej będą się trzymać jeden za drugim.
 
 
-#include <iostream>
 #include <ncurses.h>
 #include <chrono>
-#include <thread>
-#include <vector>
-#include <random>
-#include <atomic>
-#include <mutex>
 
 #include "Road.h"
 #include "Car.h"
-
-
-#define MAX_CARS 6
-
 
 using namespace std;
 
@@ -32,9 +22,7 @@ int kbhit(void)
         return 1;
     }
     else
-    {
         return 0;
-    }
 }
 
 int main()
@@ -49,23 +37,15 @@ int main()
     {
         clear();
         this_thread::sleep_for(std::chrono::milliseconds(33));
-
         road->draw();
         refresh();
 
         if (kbhit())
         {
-            road->stop_flag = true;
-            road->mtx.unlock();
+            road->stop();
             break;
         }
     }
-
-    clear();
-    addstr("Waiting for threads...\n");
-    refresh();
-
-    delete road;
 
     endwin();
     return 0;

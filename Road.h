@@ -6,9 +6,14 @@
 
 using namespace std;
 
-struct Car;
+class Car;
 
-struct Road {
+class Road {
+private:
+    void spawn_car();
+    void draw_rectangle(int y1, int x1, int y2, int x2);
+
+public:
     int x = 0;
     int y = 0;
     atomic_bool stop_flag;
@@ -19,8 +24,5 @@ struct Road {
     Road(int x, int y);
     ~Road();
     void draw();
-
-private:
-    void spawn_car();
-    void rectangle(int y1, int x1, int y2, int x2);
+    void stop();
 };
