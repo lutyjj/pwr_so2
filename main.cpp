@@ -14,12 +14,31 @@
 #include <mutex>
 
 #define LOOPS 3
+#define MAX_CARS 4
 #define PADDING_X 2
 #define PADDING_Y 1
 
 using namespace std;
 atomic_bool stop_flag;
 mutex mtx;
+void rectangle(int y1, int x1, int y2, int x2);
+
+struct Road {
+    int x = 0;
+    int y = 0;
+
+
+
+    Road(int x, int y) {
+        this->x = x;
+        this->y = y;
+    }
+
+    void draw() {
+        rectangle(0, 0, y - 1, x - 1);
+        rectangle(2, 4, y - 3, x - 5);
+    }
+};
 
 struct Car
 {
@@ -30,11 +49,13 @@ struct Car
     int loop = 0;
     bool finished = false;
     thread *t;
+    Road* road;
 
-    Car(int number)
+    Car(int number, Road* road)
     {
         this->number = number;
-
+        this->road = road;
+        
         std::random_device rd;
         std::mt19937 rng(rd());
         std::uniform_real_distribution<> dist(1, 4);
@@ -48,16 +69,16 @@ struct Car
         float x = 0 + PADDING_X;
         float y = 0 + PADDING_Y;
 
-        int cols = COLS - PADDING_X - 1;
-        int lines = LINES - PADDING_Y - 1;
+        int road_max_x = road->x - PADDING_X - 1;
+        int road_max_y = road->y - PADDING_Y - 1;
 
         while (loop < LOOPS && !stop_flag)
         {
             bool locked = false;
 
-            while (current_x < cols && !stop_flag)
+            while (current_x < road_max_x && !stop_flag)
             {
-                if (current_x > 40 && current_x < cols - 40 && !locked) {
+                if (current_x > 40 && current_x < road_max_x - 40 && !locked) {
                     mtx.lock();
                     locked = true;
                 }
@@ -65,23 +86,23 @@ struct Car
                 this->current_x = static_cast<int>(x);
                 x += speed * 1.4;
 
-                if (current_x > cols - 40 && locked) {
+                if (current_x > road_max_x - 40 && locked) {
                     mtx.unlock();
                     locked = false;
                 }
 
-                if (x > cols)
-                    x = cols;
+                if (x > road_max_x)
+                    x = road_max_x;
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             
-            while (current_y < lines && !stop_flag)
+            while (current_y < road_max_y && !stop_flag)
             {
                 this->current_y = static_cast<int>(y);
                 y += speed * 0.8;
 
-                if (y > lines)
-                    y = lines;
+                if (y > road_max_y)
+                    y = road_max_y;
 
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
@@ -114,6 +135,7 @@ struct Car
     }
 };
 
+
 int kbhit(void)
 {
     int ch = getch();
@@ -129,17 +151,17 @@ int kbhit(void)
     }
 }
 
-void spawn_car(vector<Car *> &cars)
+void spawn_car(vector<Car *> &cars, Road* road)
 {
     std::random_device rd;
     std::mt19937 rng(rd());
     std::uniform_int_distribution<> dist(500, 3000);
 
     int count = 0;
-    while (!stop_flag)
+    while (!stop_flag && cars.size() < MAX_CARS)
     {
         count++;
-        cars.push_back(new Car(count));
+        cars.push_back(new Car(count, road));
         std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng)));
     }
 }
@@ -164,8 +186,10 @@ int main()
     nodelay(stdscr, TRUE);
     curs_set(0);
 
+    Road* road = new Road(COLS, LINES);
     vector<Car *> cars;
-    thread t_spawn_car(spawn_car, ref(cars));
+    thread t_spawn_car(spawn_car, ref(cars), ref(road));
+
 
     while (true)
     {
@@ -173,8 +197,7 @@ int main()
         std::this_thread::sleep_for(std::chrono::milliseconds(33));
 
         //box(win, 0, 0);
-        rectangle(0, 0, LINES - 1, COLS - 1);
-        rectangle(2, 4, LINES - 3, COLS - 5);
+        road->draw();
 
         for (auto car : cars)
         {
