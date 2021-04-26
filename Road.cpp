@@ -32,7 +32,8 @@ void Road::draw()
     draw_rectangle(0, 0, y - 1, x - 1);
     draw_rectangle(2, 4, y - 3, x - 5);
 
-    for (int i = 0; i < cars.size(); i++) {
+    for (int i = 0; i < cars.size(); i++)
+    {
         auto car = cars[i];
 
         if (car->finished)
@@ -40,15 +41,6 @@ void Road::draw()
         else
             mvprintw(car->current_y, car->current_x, "%d", car->number);
     }
-
-    // for (auto car : cars)
-    // {
-    //     if (!car->finished)
-    //         mvprintw(car->current_y, car->current_x, "%d", car->number);
-    //     else {
-    //         cars.erase(car);
-    //     }
-    // }
 }
 
 void Road::draw_rectangle(int y1, int x1, int y2, int x2)
@@ -78,10 +70,10 @@ void Road::spawn_car()
     }
 }
 
-void Road::stop() {
+void Road::stop()
+{
     stop_flag = true;
     mtx.unlock();
-
 
     delete this;
 }

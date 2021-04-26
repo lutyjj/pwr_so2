@@ -17,7 +17,8 @@ Car::Car(int number, Road *road)
     t = new thread([this]() { thread_func(); });
 }
 
-Car::~Car() {
+Car::~Car()
+{
     t->join();
 
     printw("Thread %d exited successfully.\n", number);

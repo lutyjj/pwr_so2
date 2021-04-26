@@ -1,8 +1,7 @@
-// Jak samochód dogoni samochód przed nim jadący, to powinien czekać z wyprzedzeniem 
+// Jak samochód dogoni samochód przed nim jadący, to powinien czekać z wyprzedzeniem
 // do momentu aż znajdzie się w obszarze, gdzie jest dopuszczalne wyprzedzanie,
-// czyli na każdej stronie / na każdej ścianie ocznaczy Pan pewien odcinek, w którym jest dopuszczalne 
+// czyli na każdej stronie / na każdej ścianie ocznaczy Pan pewien odcinek, w którym jest dopuszczalne
 // wyprzedzanie i tylko tam będą się samochody wyprzedzały, a inaczej będą się trzymać jeden za drugim.
-
 
 #include <ncurses.h>
 #include <chrono>
@@ -31,7 +30,7 @@ int main()
     nodelay(stdscr, TRUE);
     curs_set(0);
 
-    Road* road = new Road(COLS, LINES);
+    Road *road = new Road(COLS, LINES);
 
     while (true)
     {
