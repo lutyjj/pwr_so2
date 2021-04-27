@@ -11,7 +11,7 @@ Car::Car(int number, Road *road)
 
     random_device rd;
     mt19937 rng(rd());
-    uniform_real_distribution<> dist(1, 4);
+    uniform_real_distribution<> dist(1, 3);
     this->speed = dist(rng);
 
     t = new thread([this]() { thread_func(); });
@@ -59,10 +59,10 @@ void Car::drive_forward(int max_point, bool axis, float multiplier)
     while (*current_point < max_point && !road->stop_flag)
     {
         if (is_in_allowed_x(0) || is_in_allowed_y(0)) {
-            lookahead();
             temp_speed = speed;
         }
         else {
+            auto found_car_x = lookahead();
             temp_speed = base_speed;
         }
 
@@ -105,8 +105,11 @@ void Car::drive_backward(int min_point, bool axis, float multiplier)
 float Car::lookahead()
 {
     auto nearest_car = road->find_nearest_car(current_x, true, true);
-
-    return 0;
+    if (nearest_car) {
+        return nearest_car->current_x;
+    }
+    
+    return -1;
 }
 
 bool Car::is_in_allowed_x(int position)
