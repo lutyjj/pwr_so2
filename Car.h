@@ -19,9 +19,9 @@ private:
     void drive_forward(int max_x, bool axis, float mult_x);
     void drive_backward(int max_x, bool axis, float mult_x);
     // 0 - top, 1 - bottom
-    bool is_in_blocked_x(int position);
+    bool is_in_allowed_x(int position);
     // 0 - top, 1 - bottom
-    bool is_in_blocked_y(int position);
+    bool is_in_allowed_y(int position);
     float lookahead();
 
 public:
@@ -29,6 +29,7 @@ public:
     ~Car();
 
     float speed = 0;
+    float base_speed = 1;
     float current_x = 0 + PADDING_X;
     float current_y = 0 + PADDING_Y;
     int number = 0;

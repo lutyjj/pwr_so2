@@ -9,8 +9,10 @@ Road::Road(int x, int y)
     this->x = x;
     this->y = y;
     this->stop_flag = false;
-    this->blocked_x_area.push_back(make_pair(40, 100));
-    this->blocked_x_area.push_back(make_pair(40, 100));
+    this->allowed_x.push_back(make_pair(40, 60));
+    this->allowed_x.push_back(make_pair(20, 70));
+    this->allowed_y.push_back(make_pair(4, 8));
+    this->allowed_y.push_back(make_pair(2, 10));
 
     t_spawn_car = new thread([this]() { spawn_car(); });
 }
@@ -29,10 +31,24 @@ Road::~Road()
     cars.clear();
 }
 
+
+void draw_red(int x1, int x2, int y1, int y2) {
+    for (int i = x1; i < x2; i++) {
+        for (int j = y1; j < y2; j++) {
+            mvaddch(j, i, ' ' | COLOR_PAIR(1));
+        }
+    }
+}
+
 void Road::draw()
 {
     draw_rectangle(0, 0, y - 1, x - 1);
     draw_rectangle(2, 4, y - 3, x - 5);
+    
+    draw_red(allowed_x[0].first + 1, allowed_x[0].second + 2, 1, 2);
+    draw_red(x - 4, x - 1, allowed_y[0].first, allowed_y[0].second);
+    draw_red(allowed_x[1].first + 1, allowed_x[1].second + 2, y-2, y-1);
+    draw_red(1, 4, allowed_y[1].first, allowed_y[1].second);
 
     for (int i = 0; i < cars.size(); i++)
     {
@@ -44,6 +60,7 @@ void Road::draw()
             mvprintw(car->current_y, car->current_x, "%d", car->number);
     }
 }
+
 
 void Road::draw_rectangle(int y1, int x1, int y2, int x2)
 {
@@ -89,7 +106,7 @@ float Road::find_nearest_car(float pos)
                     prev_nearest = car->current_x;
                 }
 
-                if (car->current_x > pos && car->current_x <= prev_nearest && car->current_x < blocked_x_area[0].second)
+                if (car->current_x > pos && car->current_x <= prev_nearest && car->current_x < allowed_x[0].second)
                     nearest_car = car->speed;
             }
         }

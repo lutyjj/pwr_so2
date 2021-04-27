@@ -29,13 +29,15 @@ int main()
     WINDOW *win = initscr();
     nodelay(stdscr, TRUE);
     curs_set(0);
-
+    start_color();
+    init_pair(1, COLOR_YELLOW, COLOR_GREEN);
+    init_pair(2, COLOR_WHITE, COLOR_BLACK);
     Road *road = new Road(COLS, LINES);
 
     while (true)
     {
-        clear();
-        this_thread::sleep_for(std::chrono::milliseconds(33));
+        erase();
+        this_thread::sleep_for(std::chrono::microseconds(33333));
         road->draw();
         refresh();
 

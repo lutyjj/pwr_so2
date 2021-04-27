@@ -21,8 +21,8 @@ public:
     Road(int x, int y);
     ~Road();
 
-    vector<pair<int, int>> blocked_x_area;
-    vector<pair<int, int>> blocked_y_area;
+    vector<pair<int, int>> allowed_x;
+    vector<pair<int, int>> allowed_y;
 
     atomic_bool stop_flag;
     mutex mtx;
