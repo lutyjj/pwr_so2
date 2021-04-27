@@ -9,6 +9,8 @@ Road::Road(int x, int y)
     this->x = x;
     this->y = y;
     this->stop_flag = false;
+    this->blocked_x_area.push_back(make_pair(40, 100));
+    this->blocked_x_area.push_back(make_pair(40, 100));
 
     t_spawn_car = new thread([this]() { spawn_car(); });
 }
@@ -62,7 +64,7 @@ void Road::spawn_car()
     uniform_int_distribution<> dist(500, 3000);
 
     int count = 0;
-    while (!this->stop_flag && cars.size() < 5)
+    while (!this->stop_flag ) // && cars.size() < 5
     {
         count++;
         cars.push_back(new Car(count, this));

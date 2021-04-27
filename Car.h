@@ -17,6 +17,11 @@ private:
     int loop = 0;
     thread *t;
     Road *road;
+    void drive(float *x, int max_x, bool axis, float mult_x);
+    bool is_in_blocked_top_x();
+    bool is_in_blocked_bottom_x();
+    bool is_in_blocked_top_y();
+    bool is_in_blocked_bottom_y();
 
 public:
     Car(int number, Road *road);
