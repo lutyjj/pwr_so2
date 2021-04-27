@@ -27,9 +27,6 @@ Car::~Car()
 
 void Car::thread_func()
 {
-    float x = 0 + PADDING_X;
-    float y = 0 + PADDING_Y;
-
     int road_max_x = road->x - PADDING_X - 1;
     int road_max_y = road->y - PADDING_Y - 1;
 
@@ -37,65 +34,69 @@ void Car::thread_func()
     {
         bool locked = false;
 
-        drive(&x, road_max_x, true, 1.4);
-        drive(&y, road_max_y, false, 0.8);
-        drive(&x, PADDING_X, true, 1.4);
-        drive(&y, PADDING_Y, false, 0.8);
+        drive(road_max_x, true, 1.4);
+        drive(road_max_y, false, 0.8);
+        drive(PADDING_X, true, 1.4);
+        drive(PADDING_Y, false, 0.8);
 
         loop++;
     }
     finished = true;
 }
 
-void Car::drive(float *x, int max_x, bool axis, float mult_x) {
+void Car::drive(int max_point, bool axis, float multiplier)
+{
     bool locked = false;
-    int* current_point;
+    int *current_point;
 
     if (axis)
         current_point = &this->current_x;
     else
         current_point = &this->current_y;
 
-    if (*x < max_x) {
-        while (*current_point < max_x && !road->stop_flag)
+    if (*current_point < max_point)
+    {
+        while (*current_point < max_point && !road->stop_flag)
         {
-            *current_point = static_cast<int>(*x);
-            *x += speed * mult_x;
+            *current_point += speed * multiplier;
 
-            if (*x > max_x) *x = max_x;
+            if (*current_point > max_point)
+                *current_point = max_point;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
-    else if (*x > max_x) {
-        while (*current_point > max_x && !road->stop_flag)
+    else if (*current_point > max_point)
+    {
+        while (*current_point > max_point && !road->stop_flag)
         {
-            *current_point = static_cast<int>(*x);
-            *x -= speed * mult_x;
+            *current_point -= speed * multiplier;
 
-            if (*x < max_x) *x = max_x;
+            if (*current_point < max_point)
+                *current_point = max_point;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
-    
 }
 
-bool Car::is_in_blocked_top_x()
+bool Car::is_in_blocked_x(int position)
 {
-    auto blocked_x_start = road->blocked_x_area[0].first;
-    auto blocked_x_end = road->blocked_x_area[0].second;
+    auto blocked_x_start = road->blocked_x_area[position].first;
+    auto blocked_x_end = road->blocked_x_area[position].second;
 
-    if (current_x >= blocked_x_start && current_x <= blocked_x_end) {
+    if (current_x >= blocked_x_start && current_x <= blocked_x_end)
+    {
         return true;
     }
     return false;
 }
 
-bool Car::is_in_blocked_bottom_x()
+bool Car::is_in_blocked_y(int position)
 {
-    auto blocked_x_start = road->blocked_x_area[1].first;
-    auto blocked_x_end = road->blocked_x_area[1].second;
+    auto blocked_x_start = road->blocked_y_area[position].first;
+    auto blocked_x_end = road->blocked_y_area[position].second;
 
-    if (current_x >= blocked_x_start && current_x <= blocked_x_end) {
+    if (current_x >= blocked_x_start && current_x <= blocked_x_end)
+    {
         return true;
     }
     return false;

@@ -64,7 +64,7 @@ void Road::spawn_car()
     uniform_int_distribution<> dist(500, 3000);
 
     int count = 0;
-    while (!this->stop_flag ) // && cars.size() < 5
+    while (!this->stop_flag) // && cars.size() < 5
     {
         count++;
         cars.push_back(new Car(count, this));
