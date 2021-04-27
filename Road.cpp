@@ -31,10 +31,12 @@ Road::~Road()
     cars.clear();
 }
 
-
-void draw_red(int x1, int x2, int y1, int y2) {
-    for (int i = x1; i < x2; i++) {
-        for (int j = y1; j < y2; j++) {
+void draw_green_rectangle(int x1, int x2, int y1, int y2)
+{
+    for (int i = x1; i < x2; i++)
+    {
+        for (int j = y1; j < y2; j++)
+        {
             mvaddch(j, i, ' ' | COLOR_PAIR(1));
         }
     }
@@ -44,11 +46,11 @@ void Road::draw()
 {
     draw_rectangle(0, 0, y - 1, x - 1);
     draw_rectangle(2, 4, y - 3, x - 5);
-    
-    draw_red(allowed_x[0].first + 1, allowed_x[0].second + 2, 1, 2);
-    draw_red(x - 4, x - 1, allowed_y[0].first, allowed_y[0].second);
-    draw_red(allowed_x[1].first + 1, allowed_x[1].second + 2, y-2, y-1);
-    draw_red(1, 4, allowed_y[1].first, allowed_y[1].second);
+
+    draw_green_rectangle(allowed_x[0].first + 1, allowed_x[0].second + 2, 1, 2);
+    draw_green_rectangle(x - 4, x - 1, allowed_y[0].first, allowed_y[0].second);
+    draw_green_rectangle(allowed_x[1].first + 1, allowed_x[1].second + 2, y - 2, y - 1);
+    draw_green_rectangle(1, 4, allowed_y[1].first, allowed_y[1].second);
 
     for (int i = 0; i < cars.size(); i++)
     {
@@ -60,7 +62,6 @@ void Road::draw()
             mvprintw(car->current_y, car->current_x, "%d", car->number);
     }
 }
-
 
 void Road::draw_rectangle(int y1, int x1, int y2, int x2)
 {
@@ -81,7 +82,7 @@ void Road::spawn_car()
     uniform_int_distribution<> dist(500, 3000);
 
     int count = 0;
-    while (!this->stop_flag && cars.size() < 10)
+    while (!this->stop_flag) //  && cars.size() < 10
     {
         count++;
         cars.push_back(new Car(count, this));
@@ -89,29 +90,31 @@ void Road::spawn_car()
     }
 }
 
-float Road::find_nearest_car(float pos)
+Car* Road::find_nearest_car(float x, bool is_moving_forward, bool is_x_axis)
 {
-    float nearest_car = -1;
-    float prev_nearest = -1;
+    Car* nearest_car = nullptr;
+    float prev_nearest = 0;
 
-    //mtx.lock();
-    for (auto car : cars)
+    mtx.lock();
+
+    if (is_moving_forward && is_x_axis)
     {
-        if (car->current_y == 1)
+        for (auto &car : cars)
         {
-            if (car->current_x != pos)
-            {
-                if (prev_nearest == -1)
-                {
-                    prev_nearest = car->current_x;
-                }
+            if (car->current_x == x)
+                continue;
 
-                if (car->current_x > pos && car->current_x <= prev_nearest && car->current_x < allowed_x[0].second)
-                    nearest_car = car->speed;
+            if (prev_nearest == 0) {
+                prev_nearest = car->current_x;
+            }
+
+            if (car->current_x > x && prev_nearest >= car->current_x) {
+                prev_nearest = car->current_x;
+                nearest_car = car;
             }
         }
     }
-    //mtx.unlock();
+    mtx.unlock();
 
     return nearest_car;
 }

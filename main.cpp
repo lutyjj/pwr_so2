@@ -37,7 +37,7 @@ int main()
     while (true)
     {
         erase();
-        this_thread::sleep_for(std::chrono::microseconds(33333));
+        this_thread::sleep_for(std::chrono::microseconds(16666));
         road->draw();
         refresh();
 
