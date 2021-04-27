@@ -13,22 +13,24 @@ class Car
 {
 private:
     void thread_func();
-    float speed = 0;
     int loop = 0;
     thread *t;
     Road *road;
-    void drive(int max_x, bool axis, float mult_x);
+    void drive_forward(int max_x, bool axis, float mult_x);
+    void drive_backward(int max_x, bool axis, float mult_x);
     // 0 - top, 1 - bottom
     bool is_in_blocked_x(int position);
     // 0 - top, 1 - bottom
     bool is_in_blocked_y(int position);
+    float lookahead();
 
 public:
     Car(int number, Road *road);
     ~Car();
 
-    int current_x = 0 + PADDING_X;
-    int current_y = 0 + PADDING_Y;
+    float speed = 0;
+    float current_x = 0 + PADDING_X;
+    float current_y = 0 + PADDING_Y;
     int number = 0;
     bool finished = false;
 };

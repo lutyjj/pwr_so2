@@ -31,4 +31,5 @@ public:
 
     void draw();
     void stop();
+    float find_nearest_car(float pos);
 };

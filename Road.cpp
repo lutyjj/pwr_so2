@@ -64,12 +64,39 @@ void Road::spawn_car()
     uniform_int_distribution<> dist(500, 3000);
 
     int count = 0;
-    while (!this->stop_flag) // && cars.size() < 5
+    while (!this->stop_flag && cars.size() < 10)
     {
         count++;
         cars.push_back(new Car(count, this));
         std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng)));
     }
+}
+
+float Road::find_nearest_car(float pos)
+{
+    float nearest_car = -1;
+    float prev_nearest = -1;
+
+    //mtx.lock();
+    for (auto car : cars)
+    {
+        if (car->current_y == 1)
+        {
+            if (car->current_x != pos)
+            {
+                if (prev_nearest == -1)
+                {
+                    prev_nearest = car->current_x;
+                }
+
+                if (car->current_x > pos && car->current_x <= prev_nearest && car->current_x < blocked_x_area[0].second)
+                    nearest_car = car->speed;
+            }
+        }
+    }
+    //mtx.unlock();
+
+    return nearest_car;
 }
 
 void Road::stop()

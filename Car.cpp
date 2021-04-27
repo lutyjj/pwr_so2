@@ -34,48 +34,93 @@ void Car::thread_func()
     {
         bool locked = false;
 
-        drive(road_max_x, true, 1.4);
-        drive(road_max_y, false, 0.8);
-        drive(PADDING_X, true, 1.4);
-        drive(PADDING_Y, false, 0.8);
+        drive_forward(road_max_x, true, 1.4);
+        drive_forward(road_max_y, false, 0.8);
+        drive_backward(PADDING_X, true, 1.4);
+        drive_backward(PADDING_Y, false, 0.8);
 
         loop++;
     }
     finished = true;
 }
 
-void Car::drive(int max_point, bool axis, float multiplier)
+void Car::drive_forward(int max_point, bool axis, float multiplier)
 {
     bool locked = false;
-    int *current_point;
+    float prev_speed = speed;
+    float *current_point;
 
     if (axis)
         current_point = &this->current_x;
     else
         current_point = &this->current_y;
 
-    if (*current_point < max_point)
+    while (*current_point < max_point && !road->stop_flag)
     {
-        while (*current_point < max_point && !road->stop_flag)
+        if (max_point != 16 && max_point != PADDING_X && max_point && PADDING_Y)
         {
-            *current_point += speed * multiplier;
+            if (is_in_blocked_x(0))
+            {
+                this->speed = lookahead();
+            }
+            else
+            {
+                this->speed = prev_speed;
+            }
+            // if (is_in_blocked_x(0) && !locked)
+            // {
+            //     auto temp = lookahead();
+            //     //this->speed = temp;
+            //     locked = true;
+            // }
 
-            if (*current_point > max_point)
-                *current_point = max_point;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            // if (!is_in_blocked_x(0) && locked)
+            // {
+            //     locked = false;
+            //     this->speed = prev_speed;
+            // }
         }
+
+        *current_point += speed * multiplier;
+
+        if (*current_point > max_point)
+            *current_point = max_point;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    else if (*current_point > max_point)
+}
+
+void Car::drive_backward(int min_point, bool axis, float multiplier)
+{
+    bool locked = false;
+    float prev_speed = speed;
+    float *current_point;
+
+    if (axis)
+        current_point = &this->current_x;
+    else
+        current_point = &this->current_y;
+
+    while (*current_point > min_point && !road->stop_flag)
     {
-        while (*current_point > max_point && !road->stop_flag)
-        {
-            *current_point -= speed * multiplier;
+        *current_point -= speed * multiplier;
 
-            if (*current_point < max_point)
-                *current_point = max_point;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
+        if (*current_point < min_point)
+            *current_point = min_point;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+}
+
+float Car::lookahead()
+{
+    road->mtx.lock();
+    auto nearest_car_speed = road->find_nearest_car(current_x);
+    if (nearest_car_speed == -1 || nearest_car_speed >= this->speed)
+    {
+        road->mtx.unlock();
+        return this->speed;
+    }
+    road->mtx.unlock();
+    return nearest_car_speed;
 }
 
 bool Car::is_in_blocked_x(int position)
