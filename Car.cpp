@@ -86,7 +86,7 @@ void Car::drive_backward(int min_point, bool axis, float multiplier) {
             temp_speed = speed;
         else if (axis) {
             auto found_car = lookahead(false, true);
-            if ((found_car && (current_x - found_car->current_x > 6)) || !found_car)
+            if ((found_car && (abs(found_car->current_x - current_x) > 6)) || !found_car)
                 temp_speed = speed;
             else
                 temp_speed = base_speed;

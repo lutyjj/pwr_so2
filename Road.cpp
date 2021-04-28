@@ -8,11 +8,8 @@ Road::Road(int x, int y) {
     this->x = x;
     this->y = y;
     this->stop_flag = false;
-    //this->allowed_x.push_back(make_pair(x / 4, x - x / 4));
-    this->allowed_x.emplace_back(0, 0);
-
-    this->allowed_x.emplace_back(0, 0);
-    //this->allowed_x.emplace_back(x / 5, x / 2);
+    this->allowed_x.emplace_back(x / 4, x - x / 4);
+    this->allowed_x.emplace_back(x / 5, x / 2);
     this->allowed_y.emplace_back(y / 4, y / 2);
     this->allowed_y.emplace_back(y / 3, y - y / 5);
 
@@ -92,7 +89,7 @@ Car *Road::find_nearest_car(Car *param_car, bool is_moving_forward, bool is_x_ax
     float prev_nearest_min = -1;
 
     mtx.lock();
-    
+
     if (is_x_axis) {
         for (auto &car : cars) {
             if (car->current_x == param_car->current_x)
