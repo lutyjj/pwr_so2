@@ -9,10 +9,11 @@ Road::Road(int x, int y)
     this->x = x;
     this->y = y;
     this->stop_flag = false;
-    this->allowed_x.push_back(make_pair(40, 60));
-    this->allowed_x.push_back(make_pair(20, 70));
-    this->allowed_y.push_back(make_pair(4, 8));
-    this->allowed_y.push_back(make_pair(2, 10));
+    //this->allowed_x.push_back(make_pair(x / 4, x - x / 4));
+    this->allowed_x.push_back(make_pair(0, 0));
+    this->allowed_x.push_back(make_pair(x / 5, x / 2));
+    this->allowed_y.push_back(make_pair(y / 4, y / 2));
+    this->allowed_y.push_back(make_pair(y / 3, y - y / 5));
 
     t_spawn_car = new thread([this]() { spawn_car(); });
 }
@@ -52,6 +53,7 @@ void Road::draw()
     draw_green_rectangle(allowed_x[1].first + 1, allowed_x[1].second + 2, y - 2, y - 1);
     draw_green_rectangle(1, 4, allowed_y[1].first, allowed_y[1].second);
 
+    mtx.lock();
     for (int i = 0; i < cars.size(); i++)
     {
         auto car = cars[i];
@@ -61,6 +63,7 @@ void Road::draw()
         else
             mvprintw(car->current_y, car->current_x, "%d", car->number);
     }
+    mtx.unlock();
 }
 
 void Road::draw_rectangle(int y1, int x1, int y2, int x2)
@@ -82,7 +85,7 @@ void Road::spawn_car()
     uniform_int_distribution<> dist(500, 3000);
 
     int count = 0;
-    while (!this->stop_flag) //  && cars.size() < 10
+    while (!this->stop_flag && cars.size() < 10) //  && cars.size() < 10
     {
         count++;
         cars.push_back(new Car(count, this));
@@ -90,30 +93,75 @@ void Road::spawn_car()
     }
 }
 
-Car* Road::find_nearest_car(float x, bool is_moving_forward, bool is_x_axis)
+Car* Road::find_nearest_car(Car* param_car, bool is_moving_forward, bool is_x_axis)
 {
     Car* nearest_car = nullptr;
     float prev_nearest = 0;
 
     mtx.lock();
 
-    if (is_moving_forward && is_x_axis)
+    if (is_x_axis)
     {
         for (auto &car : cars)
         {
-            if (car->current_x == x)
+            if (car->current_x == param_car->current_x)
                 continue;
 
             if (prev_nearest == 0) {
                 prev_nearest = car->current_x;
             }
 
-            if (car->current_x > x && prev_nearest >= car->current_x) {
-                prev_nearest = car->current_x;
-                nearest_car = car;
+            if (is_moving_forward) 
+            {
+                if (car->current_x > param_car->current_x 
+                && prev_nearest >= car->current_x
+                && car->current_y == param_car->current_y) 
+                {
+                    prev_nearest = car->current_x;
+                    nearest_car = car;
+                }
+            }
+            else 
+            {
+                if (car->current_x < param_car->current_x 
+                && prev_nearest <= car->current_x
+                && car->current_y == param_car->current_y) 
+                {
+                    prev_nearest = car->current_x;
+                    nearest_car = car;
+                }
             }
         }
     }
+    else {
+        for (auto &car : cars)
+        {
+            if (car->current_y == param_car->current_y)
+                continue;
+
+            if (prev_nearest == 0) {
+                prev_nearest = car->current_y;
+            }
+
+            if (is_moving_forward) {
+                if (car->current_y > param_car->current_y
+                && prev_nearest >= car->current_y
+                && car->current_x == param_car->current_x) {
+                    prev_nearest = car->current_y;
+                    nearest_car = car;
+                }
+            }
+            else {
+                if (car->current_y < param_car->current_y
+                && prev_nearest <= car->current_y
+                && car->current_x == param_car->current_x) {
+                    prev_nearest = car->current_y;
+                    nearest_car = car;
+                }
+            }
+        }
+    }
+
     mtx.unlock();
 
     return nearest_car;

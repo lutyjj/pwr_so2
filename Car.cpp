@@ -58,12 +58,28 @@ void Car::drive_forward(int max_point, bool axis, float multiplier)
 
     while (*current_point < max_point && !road->stop_flag)
     {
-        if (is_in_allowed_x(0) || is_in_allowed_y(0)) {
+        if (is_in_allowed_x(0) || is_in_allowed_y(0))
+        {
             temp_speed = speed;
         }
-        else {
-            auto found_car_x = lookahead();
-            temp_speed = base_speed;
+        else
+        {
+            if (axis)
+            {
+                auto found_car = lookahead(true, true);
+                if (found_car && found_car->current_x - current_x > 6)
+                    temp_speed = speed;
+                else
+                    temp_speed = base_speed;
+            }
+            else
+            {
+                auto found_car = lookahead(false, true);
+                if (found_car && found_car->current_y - current_y > 3)
+                    temp_speed = speed;
+                else
+                    temp_speed = base_speed;
+            }
         }
 
         *current_point += temp_speed * multiplier;
@@ -90,10 +106,26 @@ void Car::drive_backward(int min_point, bool axis, float multiplier)
     {
         if (is_in_allowed_x(1) || is_in_allowed_y(1))
             temp_speed = speed;
-        else {
-            temp_speed = base_speed;
+        else
+        {
+            if (axis)
+            {
+                auto found_car = lookahead(true, false);
+                if (found_car && abs(found_car->current_x - current_x) > 5)
+                    temp_speed = speed;
+                else
+                    temp_speed = base_speed;
+            }
+            else
+            {
+                auto found_car = lookahead(false, false);
+                if (found_car && abs(found_car->current_y - current_y) > 3)
+                    temp_speed = speed;
+                else
+                    temp_speed = base_speed;
+            }
         }
-        
+
         *current_point -= temp_speed * multiplier;
 
         if (*current_point < min_point)
@@ -102,14 +134,15 @@ void Car::drive_backward(int min_point, bool axis, float multiplier)
     }
 }
 
-float Car::lookahead()
+/**
+ * @param is_moving_forward is car is moving forward or backwards on axis
+ * @param is_x_axis is axis x or y
+ * @return found found car
+ * **/
+Car *Car::lookahead(bool is_moving_forward, bool is_x_axis)
 {
-    auto nearest_car = road->find_nearest_car(current_x, true, true);
-    if (nearest_car) {
-        return nearest_car->current_x;
-    }
-    
-    return -1;
+    return road->find_nearest_car(this, is_moving_forward, is_x_axis);
+    ;
 }
 
 bool Car::is_in_allowed_x(int position)

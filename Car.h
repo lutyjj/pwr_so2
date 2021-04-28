@@ -22,7 +22,7 @@ private:
     bool is_in_allowed_x(int position);
     // 0 - top, 1 - bottom
     bool is_in_allowed_y(int position);
-    float lookahead();
+    Car* lookahead(bool is_moving_forward, bool is_x_axis);
 
 public:
     Car(int number, Road *road);
