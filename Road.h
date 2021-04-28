@@ -17,6 +17,7 @@ private:
 
     void spawn_car();
     static void draw_rectangle(int y1, int x1, int y2, int x2);
+    static void draw_green_rectangle(int x1, int x2, int y1, int y2);
 
 public:
     Road(int x, int y);

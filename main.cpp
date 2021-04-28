@@ -5,6 +5,7 @@
 
 #include <ncurses.h>
 #include <chrono>
+#include <iostream>
 
 #include "Road.h"
 #include "Car.h"

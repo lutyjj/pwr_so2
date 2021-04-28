@@ -52,13 +52,13 @@ void Car::drive_forward(int max_point, bool axis, float multiplier) {
             temp_speed = speed;
         else if (axis) {
             auto found_car = lookahead(true, true);
-            if (found_car && found_car->current_x - current_x > 6)
+            if ((found_car && found_car->current_x - current_x > 6) || !found_car)
                 temp_speed = speed;
             else
                 temp_speed = base_speed;
         } else {
-            auto found_car = lookahead(false, true);
-            if (found_car && found_car->current_y - current_y > 3)
+            auto found_car = lookahead(true, false);
+            if ((found_car && found_car->current_y - current_y > 3) || !found_car)
                 temp_speed = speed;
             else
                 temp_speed = base_speed;
@@ -85,14 +85,14 @@ void Car::drive_backward(int min_point, bool axis, float multiplier) {
         if (is_in_allowed_x(1) || is_in_allowed_y(1))
             temp_speed = speed;
         else if (axis) {
-            auto found_car = lookahead(true, false);
-            if (found_car && abs(found_car->current_x - current_x) > 5)
+            auto found_car = lookahead(false, true);
+            if ((found_car && (current_x - found_car->current_x > 6)) || !found_car)
                 temp_speed = speed;
             else
                 temp_speed = base_speed;
         } else {
             auto found_car = lookahead(false, false);
-            if (found_car && abs(found_car->current_y - current_y) > 3)
+            if ((found_car && (abs(found_car->current_y - current_y) > 3)) || !found_car)
                 temp_speed = speed;
             else
                 temp_speed = base_speed;
