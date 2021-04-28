@@ -1,4 +1,5 @@
 #pragma once
+
 #include <thread>
 
 #define PADDING_X 2
@@ -12,17 +13,17 @@ class Road;
 class Car
 {
 private:
-    void thread_func();
     int loop = 0;
     thread *t;
     Road *road;
+
+
+    void thread_func();
     void drive_forward(int max_x, bool axis, float mult_x);
     void drive_backward(int max_x, bool axis, float mult_x);
-    // 0 - top, 1 - bottom
     bool is_in_allowed_x(int position);
-    // 0 - top, 1 - bottom
     bool is_in_allowed_y(int position);
-    Car* lookahead(bool is_moving_forward, bool is_x_axis);
+    Car *lookahead(bool is_moving_forward, bool is_x_axis);
 
 public:
     Car(int number, Road *road);
