@@ -33,10 +33,12 @@ void Road::draw() {
     draw_rectangle(0, 0, y - 1, x - 1);
     draw_rectangle(2, 4, y - 3, x - 5);
 
-    draw_green_rectangle(allowed_x[0].first + 1, allowed_x[0].second + 2, 1, 2);
-    draw_green_rectangle(x - 4, x - 1, allowed_y[0].first, allowed_y[0].second);
-    draw_green_rectangle(allowed_x[1].first + 1, allowed_x[1].second + 2, y - 2, y - 1);
-    draw_green_rectangle(1, 4, allowed_y[1].first, allowed_y[1].second);
+    if (allowed_x.size() && allowed_y.size()) {
+        draw_green_rectangle(allowed_x[0].first + 1, allowed_x[0].second + 2, 1, 2);
+        draw_green_rectangle(x - 4, x - 1, allowed_y[0].first, allowed_y[0].second);
+        draw_green_rectangle(allowed_x[1].first + 1, allowed_x[1].second + 2, y - 2, y - 1);
+        draw_green_rectangle(1, 4, allowed_y[1].first, allowed_y[1].second);
+    }
 
     mtx.lock();
     for (int i = 0; i < cars.size(); i++) {
@@ -75,7 +77,7 @@ void Road::spawn_car() {
     uniform_int_distribution<> dist(1000, 4000);
 
     int count = 0;
-    while (!this->stop_flag && cars.size() < 3) //  && cars.size() < 10
+    while (!this->stop_flag && cars.size() < 10) //  && cars.size() < 10
     {
         count++;
         cars.push_back(new Car(count, this));

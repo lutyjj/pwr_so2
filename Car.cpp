@@ -33,20 +33,17 @@ void Car::thread_func()
 
     while (loop < LOOPS && !road->stop_flag)
     {
-        drive_forward(road_max_x, Axis::x_positive, 1.4);
-        drive_forward(road_max_y, Axis::y_positive, 0.8);
-        drive_forward(PADDING_X, Axis::x_negative, 1.4);
-        drive_forward(PADDING_Y, Axis::y_negative, 0.8);
-
-        // drive_backward(PADDING_X, true, 1.4);
-        // drive_backward(PADDING_Y, false, 0.8);
+        drive(road_max_x, Axis::x_positive, 1.4);
+        drive(road_max_y, Axis::y_positive, 0.8);
+        drive(PADDING_X, Axis::x_negative, 1.4);
+        drive(PADDING_Y, Axis::y_negative, 0.8);
 
         loop++;
     }
     finished = true;
 }
 
-void Car::drive_forward(int end_point, Axis axis, float multiplier)
+void Car::drive(int end_point, Axis axis, float multiplier)
 {
     float temp_speed;
     float *current_point;
@@ -65,12 +62,8 @@ void Car::drive_forward(int end_point, Axis axis, float multiplier)
             if (is_in_allowed_x(0) || is_in_allowed_y(0))
                 base_speed = speed;
             else {
-
                 auto found_speed = nearest_car_speed(axis);
-                if (found_speed < speed)
-                    base_speed = found_speed;
-                else
-                    base_speed = speed;
+                base_speed = found_speed < speed ? found_speed : speed;
             }
             
             *current_point += base_speed * multiplier;
@@ -89,15 +82,9 @@ void Car::drive_forward(int end_point, Axis axis, float multiplier)
                 base_speed = speed;
             else {
                 auto found_speed = nearest_car_speed(axis);
-                if (found_speed < speed)
-                    base_speed = found_speed;
-                else
-                    base_speed = speed;
-
-                //base_speed = nearest_car_speed(axis);
+                base_speed = found_speed < speed ? found_speed : speed;
             }
 
-            // temp_speed = speed;
             *current_point -= base_speed * multiplier;
 
             if (*current_point < end_point)
@@ -134,22 +121,26 @@ float Car::nearest_car_speed(Axis axis)
 
 bool Car::is_in_allowed_x(int position)
 {
-    auto allowed_x_start = road->allowed_x[position].first;
-    auto allowed_x_end = road->allowed_x[position].second;
+    if (road->allowed_x.size()) {
+        auto allowed_x_start = road->allowed_x[position].first;
+        auto allowed_x_end = road->allowed_x[position].second;
 
-    if (current_x >= allowed_x_start && current_x <= allowed_x_end)
-        return true;
+        if (current_x >= allowed_x_start && current_x <= allowed_x_end)
+            return true;
+    }
 
     return false;
 }
 
 bool Car::is_in_allowed_y(int position)
 {
-    auto allowed_y_start = road->allowed_y[position].first;
-    auto allowed_y_end = road->allowed_y[position].second;
+    if (road->allowed_y.size()) {
+        auto allowed_y_start = road->allowed_y[position].first;
+        auto allowed_y_end = road->allowed_y[position].second;
 
-    if (current_y >= allowed_y_start && current_y <= allowed_y_end)
-        return true;
+        if (current_y >= allowed_y_start && current_y <= allowed_y_end)
+            return true;
+    }
 
     return false;
 }

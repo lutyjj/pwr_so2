@@ -4,7 +4,7 @@
 
 #define PADDING_X 2
 #define PADDING_Y 1
-#define LOOPS 3
+#define LOOPS 10
 
 using namespace std;
 
@@ -24,8 +24,6 @@ private:
 
     void thread_func();
     void drive_forward(int max_x, Axis axis, float mult_x);
-    // void drive_backward(int max_x, bool axis, float mult_x);
-
     bool is_in_allowed_x(int position);
     bool is_in_allowed_y(int position);
     float nearest_car_speed(Axis axis);
