@@ -23,7 +23,7 @@ private:
     Axis axis;
 
     void thread_func();
-    void drive_forward(int max_x, Axis axis, float mult_x);
+    void drive(int max_x, Axis axis, float mult_x);
     bool is_in_allowed_x(int position);
     bool is_in_allowed_y(int position);
     float nearest_car_speed(Axis axis);

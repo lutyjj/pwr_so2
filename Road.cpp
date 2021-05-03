@@ -8,10 +8,10 @@ Road::Road(int x, int y) {
     this->x = x;
     this->y = y;
     this->stop_flag = false;
-    this->allowed_x.emplace_back(x / 4, x - x / 4);
-    this->allowed_x.emplace_back(x / 5, x / 2);
-    this->allowed_y.emplace_back(y / 4, y / 2);
-    this->allowed_y.emplace_back(y / 3, y - y / 5);
+    // this->allowed_x.emplace_back(x / 4, x - x / 4);
+    // this->allowed_x.emplace_back(x / 5, x / 2);
+    // this->allowed_y.emplace_back(y / 4, y / 2);
+    // this->allowed_y.emplace_back(y / 3, y - y / 5);
 
     t_spawn_car = new thread([this]() { spawn_car(); });
 }

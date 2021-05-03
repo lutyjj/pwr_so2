@@ -40,6 +40,7 @@ void Car::thread_func()
 
         loop++;
     }
+
     finished = true;
 }
 
@@ -98,25 +99,17 @@ void Car::drive(int end_point, Axis axis, float multiplier)
     }
 }
 
-/**
- * @return found found car
- * **/
 float Car::nearest_car_speed(Axis axis)
 {
     auto found_car = road->find_nearest_car(this, axis);
 
-    float found_speed;
+    if (found_car) {
+        if (!((axis == Axis::x_negative || axis == Axis::x_positive) && abs(found_car->current_x - current_x) > 6) &&
+            !((axis == Axis::y_negative || axis == Axis::y_positive) && abs(found_car->current_y - current_y) > 3))
+            return found_car->base_speed;
+    }
 
-    if (found_car == nullptr)
-        found_speed = this->base_speed;
-    else if ((axis == Axis::x_negative || axis == Axis::x_positive) && abs(found_car->current_x - current_x) > 6)
-        found_speed = this->base_speed;
-    else if ((axis == Axis::y_negative || axis == Axis::y_positive) && abs(found_car->current_y - current_y) > 3)
-        found_speed = this->base_speed;
-    else
-        found_speed = found_car->base_speed;
-
-    return found_speed;
+    return this->base_speed;
 }
 
 bool Car::is_in_allowed_x(int position)
