@@ -72,10 +72,10 @@ void Road::draw_green_rectangle(int x1, int x2, int y1, int y2) {
 void Road::spawn_car() {
     random_device rd;
     mt19937 rng(rd());
-    uniform_int_distribution<> dist(500, 3000);
+    uniform_int_distribution<> dist(1000, 4000);
 
     int count = 0;
-    while (!this->stop_flag && cars.size() < 10) //  && cars.size() < 10
+    while (!this->stop_flag && cars.size() < 3) //  && cars.size() < 10
     {
         count++;
         cars.push_back(new Car(count, this));
@@ -83,19 +83,19 @@ void Road::spawn_car() {
     }
 }
 
-Car *Road::find_nearest_car(Car *param_car, bool is_moving_forward, bool is_x_axis) {
-    Car *nearest_car = nullptr;
+Car* Road::find_nearest_car(Car* param_car, Axis axis) {
+    Car* nearest_car;
     float prev_nearest_max = INT64_MAX;
     float prev_nearest_min = -1;
 
     mtx.lock();
 
-    if (is_x_axis) {
+    if (axis == Axis::x_negative || axis == Axis::x_positive) {
         for (auto &car : cars) {
             if (car->current_x == param_car->current_x)
                 continue;
 
-            if (is_moving_forward) {
+            if (axis == Axis::x_positive) {
                 if (car->current_x > param_car->current_x
                     && car->current_x < prev_nearest_max
                     && car->current_y == param_car->current_y) {
@@ -116,7 +116,7 @@ Car *Road::find_nearest_car(Car *param_car, bool is_moving_forward, bool is_x_ax
             if (car->current_y == param_car->current_y)
                 continue;
 
-            if (is_moving_forward) {
+            if (axis == Axis::y_positive) {
                 if (car->current_y > param_car->current_y
                     && car->current_y < prev_nearest_max
                     && car->current_x == param_car->current_x) {

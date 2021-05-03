@@ -9,7 +9,7 @@
 using namespace std;
 
 class Car;
-
+enum class Axis;
 class Road {
 private:
     vector<Car *> cars;
@@ -33,5 +33,5 @@ public:
 
     void draw();
     void stop();
-    Car *find_nearest_car(Car *car, bool is_moving_forward, bool is_x_axis);
+    Car* find_nearest_car(Car* car, Axis axis);
 };

@@ -4,9 +4,11 @@
 #include "Car.h"
 #include "Road.h"
 
-Car::Car(int number, Road *road) {
+Car::Car(int number, Road *road)
+{
     this->number = number;
     this->road = road;
+    this->axis = Axis::x_positive;
 
     random_device rd;
     mt19937 rng(rd());
@@ -16,106 +18,122 @@ Car::Car(int number, Road *road) {
     t = new thread([this]() { thread_func(); });
 }
 
-Car::~Car() {
+Car::~Car()
+{
     t->join();
 
     printw("Thread %d exited successfully.\n", number);
     refresh();
 }
 
-void Car::thread_func() {
+void Car::thread_func()
+{
     int road_max_x = road->x - PADDING_X - 1;
     int road_max_y = road->y - PADDING_Y - 1;
 
-    while (loop < LOOPS && !road->stop_flag) {
-        drive_forward(road_max_x, true, 1.4);
-        drive_forward(road_max_y, false, 0.8);
-        drive_backward(PADDING_X, true, 1.4);
-        drive_backward(PADDING_Y, false, 0.8);
+    while (loop < LOOPS && !road->stop_flag)
+    {
+        drive_forward(road_max_x, Axis::x_positive, 1.4);
+        drive_forward(road_max_y, Axis::y_positive, 0.8);
+        drive_forward(PADDING_X, Axis::x_negative, 1.4);
+        drive_forward(PADDING_Y, Axis::y_negative, 0.8);
+
+        // drive_backward(PADDING_X, true, 1.4);
+        // drive_backward(PADDING_Y, false, 0.8);
 
         loop++;
     }
     finished = true;
 }
 
-void Car::drive_forward(int max_point, bool axis, float multiplier) {
+void Car::drive_forward(int end_point, Axis axis, float multiplier)
+{
     float temp_speed;
     float *current_point;
 
-    if (axis)
+    if (axis == Axis::x_positive || axis == Axis::x_negative)
         current_point = &this->current_x;
     else
         current_point = &this->current_y;
 
-    while (*current_point < max_point && !road->stop_flag) {
-        if (is_in_allowed_x(0) || is_in_allowed_y(0))
-            temp_speed = speed;
-        else if (axis) {
-            auto found_car = lookahead(true, true);
-            if ((found_car && found_car->current_x - current_x > 6) || !found_car)
-                temp_speed = speed;
-            else
-                temp_speed = base_speed;
-        } else {
-            auto found_car = lookahead(true, false);
-            if ((found_car && found_car->current_y - current_y > 3) || !found_car)
-                temp_speed = speed;
-            else
-                temp_speed = base_speed;
+    switch (axis)
+    {
+    case Axis::x_positive:
+    case Axis::y_positive:
+        while (*current_point < end_point && !road->stop_flag)
+        {
+            if (is_in_allowed_x(0) || is_in_allowed_y(0))
+                base_speed = speed;
+            else {
+
+                auto found_speed = nearest_car_speed(axis);
+                if (found_speed < speed)
+                    base_speed = found_speed;
+                else
+                    base_speed = speed;
+            }
+            
+            *current_point += base_speed * multiplier;
+
+            if (*current_point > end_point)
+                *current_point = end_point;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+        break;
 
-        *current_point += temp_speed * multiplier;
+    case Axis::x_negative:
+    case Axis::y_negative:
+        while (*current_point > end_point && !road->stop_flag)
+        {
+            if (is_in_allowed_x(1) || is_in_allowed_y(1))
+                base_speed = speed;
+            else {
+                auto found_speed = nearest_car_speed(axis);
+                if (found_speed < speed)
+                    base_speed = found_speed;
+                else
+                    base_speed = speed;
 
-        if (*current_point > max_point)
-            *current_point = max_point;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-}
+                //base_speed = nearest_car_speed(axis);
+            }
 
-void Car::drive_backward(int min_point, bool axis, float multiplier) {
-    float temp_speed;
-    float *current_point;
+            // temp_speed = speed;
+            *current_point -= base_speed * multiplier;
 
-    if (!axis)
-        current_point = &this->current_y;
-    else
-        current_point = &this->current_x;
-
-    while (*current_point > min_point && !road->stop_flag) {
-        if (is_in_allowed_x(1) || is_in_allowed_y(1))
-            temp_speed = speed;
-        else if (axis) {
-            auto found_car = lookahead(false, true);
-            if ((found_car && (abs(found_car->current_x - current_x) > 6)) || !found_car)
-                temp_speed = speed;
-            else
-                temp_speed = base_speed;
-        } else {
-            auto found_car = lookahead(false, false);
-            if ((found_car && (abs(found_car->current_y - current_y) > 3)) || !found_car)
-                temp_speed = speed;
-            else
-                temp_speed = base_speed;
+            if (*current_point < end_point)
+                *current_point = end_point;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+        break;
 
-        *current_point -= temp_speed * multiplier;
-
-        if (*current_point < min_point)
-            *current_point = min_point;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    default:
+        break;
     }
 }
 
 /**
- * @param is_moving_forward is car is moving forward or backwards on axis
- * @param is_x_axis is axis x or y
  * @return found found car
  * **/
-Car *Car::lookahead(bool is_moving_forward, bool is_x_axis) {
-    return road->find_nearest_car(this, is_moving_forward, is_x_axis);
+float Car::nearest_car_speed(Axis axis)
+{
+    auto found_car = road->find_nearest_car(this, axis);
+
+    float found_speed;
+
+    if (found_car == nullptr)
+        found_speed = this->base_speed;
+    else if ((axis == Axis::x_negative || axis == Axis::x_positive) && abs(found_car->current_x - current_x) > 6)
+        found_speed = this->base_speed;
+    else if ((axis == Axis::y_negative || axis == Axis::y_positive) && abs(found_car->current_y - current_y) > 3)
+        found_speed = this->base_speed;
+    else
+        found_speed = found_car->base_speed;
+
+    return found_speed;
 }
 
-bool Car::is_in_allowed_x(int position) {
+bool Car::is_in_allowed_x(int position)
+{
     auto allowed_x_start = road->allowed_x[position].first;
     auto allowed_x_end = road->allowed_x[position].second;
 
@@ -125,7 +143,8 @@ bool Car::is_in_allowed_x(int position) {
     return false;
 }
 
-bool Car::is_in_allowed_y(int position) {
+bool Car::is_in_allowed_y(int position)
+{
     auto allowed_y_start = road->allowed_y[position].first;
     auto allowed_y_end = road->allowed_y[position].second;
 
