@@ -10,7 +10,8 @@ using namespace std;
 
 class Car;
 enum class Axis;
-class Road {
+class Road
+{
 private:
     vector<Car *> cars;
     thread *t_spawn_car;
@@ -33,5 +34,5 @@ public:
 
     void draw();
     void stop();
-    Car* find_nearest_car(Car* car, Axis axis);
+    Car *find_nearest_car(Car *car, Axis axis);
 };

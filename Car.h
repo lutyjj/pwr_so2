@@ -10,8 +10,12 @@ using namespace std;
 
 class Road;
 
-enum class Axis {
-    x_positive, x_negative, y_positive, y_negative
+enum class Axis
+{
+    x_positive,
+    x_negative,
+    y_positive,
+    y_negative
 };
 
 class Car

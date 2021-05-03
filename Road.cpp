@@ -4,7 +4,8 @@
 #include "Road.h"
 #include "Car.h"
 
-Road::Road(int x, int y) {
+Road::Road(int x, int y)
+{
     this->x = x;
     this->y = y;
     this->stop_flag = false;
@@ -16,7 +17,8 @@ Road::Road(int x, int y) {
     t_spawn_car = new thread([this]() { spawn_car(); });
 }
 
-Road::~Road() {
+Road::~Road()
+{
     clear();
     addstr("Waiting for threads...\n");
     refresh();
@@ -29,11 +31,13 @@ Road::~Road() {
     cars.clear();
 }
 
-void Road::draw() {
+void Road::draw()
+{
     draw_rectangle(0, 0, y - 1, x - 1);
     draw_rectangle(2, 4, y - 3, x - 5);
 
-    if (allowed_x.size() && allowed_y.size()) {
+    if (allowed_x.size() && allowed_y.size())
+    {
         draw_green_rectangle(allowed_x[0].first + 1, allowed_x[0].second + 2, 1, 2);
         draw_green_rectangle(x - 4, x - 1, allowed_y[0].first, allowed_y[0].second);
         draw_green_rectangle(allowed_x[1].first + 1, allowed_x[1].second + 2, y - 2, y - 1);
@@ -41,7 +45,8 @@ void Road::draw() {
     }
 
     mtx.lock();
-    for (int i = 0; i < cars.size(); i++) {
+    for (int i = 0; i < cars.size(); i++)
+    {
         auto car = cars[i];
 
         if (car->finished)
@@ -52,7 +57,8 @@ void Road::draw() {
     mtx.unlock();
 }
 
-void Road::draw_rectangle(int y1, int x1, int y2, int x2) {
+void Road::draw_rectangle(int y1, int x1, int y2, int x2)
+{
     mvhline(y1, x1, 0, x2 - x1);
     mvhline(y2, x1, 0, x2 - x1);
     mvvline(y1, x1, 0, y2 - y1);
@@ -63,15 +69,19 @@ void Road::draw_rectangle(int y1, int x1, int y2, int x2) {
     mvaddch(y2, x2, ACS_LRCORNER);
 }
 
-void Road::draw_green_rectangle(int x1, int x2, int y1, int y2) {
-    for (int i = x1; i < x2; i++) {
-        for (int j = y1; j < y2; j++) {
+void Road::draw_green_rectangle(int x1, int x2, int y1, int y2)
+{
+    for (int i = x1; i < x2; i++)
+    {
+        for (int j = y1; j < y2; j++)
+        {
             mvaddch(j, i, ' ' | COLOR_PAIR(1));
         }
     }
 }
 
-void Road::spawn_car() {
+void Road::spawn_car()
+{
     random_device rd;
     mt19937 rng(rd());
     uniform_int_distribution<> dist(1000, 4000);
@@ -85,50 +95,58 @@ void Road::spawn_car() {
     }
 }
 
-Car* Road::find_nearest_car(Car* param_car, Axis axis) {
-    Car* nearest_car;
+Car *Road::find_nearest_car(Car *param_car, Axis axis)
+{
+    Car *nearest_car;
     float prev_nearest_max = INT64_MAX;
     float prev_nearest_min = -1;
 
     mtx.lock();
 
-    if (axis == Axis::x_negative || axis == Axis::x_positive) {
-        for (auto &car : cars) {
+    if (axis == Axis::x_negative || axis == Axis::x_positive)
+    {
+        for (auto &car : cars)
+        {
             if (car->current_x == param_car->current_x)
                 continue;
 
-            if (axis == Axis::x_positive) {
-                if (car->current_x > param_car->current_x
-                    && car->current_x < prev_nearest_max
-                    && car->current_y == param_car->current_y) {
+            if (axis == Axis::x_positive)
+            {
+                if (car->current_x > param_car->current_x && car->current_x < prev_nearest_max && car->current_y == param_car->current_y)
+                {
                     prev_nearest_max = car->current_x;
                     nearest_car = car;
                 }
-            } else {
-                if (car->current_x < param_car->current_x
-                    && car->current_x > prev_nearest_min 
-                    && car->current_y == param_car->current_y) {
+            }
+            else
+            {
+                if (car->current_x < param_car->current_x && car->current_x > prev_nearest_min && car->current_y == param_car->current_y)
+                {
                     prev_nearest_min = car->current_x;
                     nearest_car = car;
                 }
             }
         }
-    } else {
-        for (auto &car : cars) {
+    }
+    else
+    {
+        for (auto &car : cars)
+        {
             if (car->current_y == param_car->current_y)
                 continue;
 
-            if (axis == Axis::y_positive) {
-                if (car->current_y > param_car->current_y
-                    && car->current_y < prev_nearest_max
-                    && car->current_x == param_car->current_x) {
+            if (axis == Axis::y_positive)
+            {
+                if (car->current_y > param_car->current_y && car->current_y < prev_nearest_max && car->current_x == param_car->current_x)
+                {
                     prev_nearest_max = car->current_y;
                     nearest_car = car;
                 }
-            } else {
-                if (car->current_y < param_car->current_y
-                    && car->current_y > prev_nearest_min 
-                    && car->current_x == param_car->current_x) {
+            }
+            else
+            {
+                if (car->current_y < param_car->current_y && car->current_y > prev_nearest_min && car->current_x == param_car->current_x)
+                {
                     prev_nearest_min = car->current_y;
                     nearest_car = car;
                 }
@@ -141,7 +159,8 @@ Car* Road::find_nearest_car(Car* param_car, Axis axis) {
     return nearest_car;
 }
 
-void Road::stop() {
+void Road::stop()
+{
     stop_flag = true;
     mtx.unlock();
 

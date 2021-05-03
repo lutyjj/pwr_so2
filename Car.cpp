@@ -37,7 +37,6 @@ void Car::thread_func()
         drive(road_max_y, Axis::y_positive, 0.8);
         drive(PADDING_X, Axis::x_negative, 1.4);
         drive(PADDING_Y, Axis::y_negative, 0.8);
-
         loop++;
     }
 
@@ -62,11 +61,12 @@ void Car::drive(int end_point, Axis axis, float multiplier)
         {
             if (is_in_allowed_x(0) || is_in_allowed_y(0))
                 base_speed = speed;
-            else {
+            else
+            {
                 auto found_speed = nearest_car_speed(axis);
                 base_speed = found_speed < speed ? found_speed : speed;
             }
-            
+
             *current_point += base_speed * multiplier;
 
             if (*current_point > end_point)
@@ -81,7 +81,8 @@ void Car::drive(int end_point, Axis axis, float multiplier)
         {
             if (is_in_allowed_x(1) || is_in_allowed_y(1))
                 base_speed = speed;
-            else {
+            else
+            {
                 auto found_speed = nearest_car_speed(axis);
                 base_speed = found_speed < speed ? found_speed : speed;
             }
@@ -103,7 +104,8 @@ float Car::nearest_car_speed(Axis axis)
 {
     auto found_car = road->find_nearest_car(this, axis);
 
-    if (found_car) {
+    if (found_car)
+    {
         if (!((axis == Axis::x_negative || axis == Axis::x_positive) && abs(found_car->current_x - current_x) > 6) &&
             !((axis == Axis::y_negative || axis == Axis::y_positive) && abs(found_car->current_y - current_y) > 3))
             return found_car->base_speed;
@@ -114,7 +116,8 @@ float Car::nearest_car_speed(Axis axis)
 
 bool Car::is_in_allowed_x(int position)
 {
-    if (road->allowed_x.size()) {
+    if (road->allowed_x.size())
+    {
         auto allowed_x_start = road->allowed_x[position].first;
         auto allowed_x_end = road->allowed_x[position].second;
 
@@ -127,7 +130,8 @@ bool Car::is_in_allowed_x(int position)
 
 bool Car::is_in_allowed_y(int position)
 {
-    if (road->allowed_y.size()) {
+    if (road->allowed_y.size())
+    {
         auto allowed_y_start = road->allowed_y[position].first;
         auto allowed_y_end = road->allowed_y[position].second;
 

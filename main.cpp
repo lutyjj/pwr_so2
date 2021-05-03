@@ -12,17 +12,21 @@
 
 using namespace std;
 
-int kbhit() {
+int kbhit()
+{
     int ch = getch();
 
-    if (ch != ERR) {
+    if (ch != ERR)
+    {
         ungetch(ch);
         return 1;
-    } else
+    }
+    else
         return 0;
 }
 
-int main() {
+int main()
+{
     WINDOW *win = initscr();
     nodelay(stdscr, TRUE);
     curs_set(0);
@@ -31,13 +35,15 @@ int main() {
     init_pair(2, COLOR_WHITE, COLOR_BLACK);
     Road *road = new Road(COLS, LINES);
 
-    while (true) {
+    while (true)
+    {
         erase();
         this_thread::sleep_for(std::chrono::microseconds(16666));
         road->draw();
         refresh();
 
-        if (kbhit()) {
+        if (kbhit())
+        {
             road->stop();
             break;
         }
