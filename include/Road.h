@@ -37,6 +37,8 @@ public:
 
   void notify_add(int number);
   void notify_remove(int number);
+  void notify_add(Car *car);
+  void notify_remove(Car *car);
   
   vector<int> in_allowed_x;
 

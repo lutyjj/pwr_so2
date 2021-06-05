@@ -161,3 +161,15 @@ void Road::notify_add(int number) {
 void Road::notify_remove(int number) {
   in_allowed_x.erase(std::remove(in_allowed_x.begin(), in_allowed_x.end(), number), in_allowed_x.end()); 
 }
+
+void Road::notify_add(Car *car) {
+  if(find(in_allowed_x.begin(), in_allowed_x.end(), car->number) == in_allowed_x.end()) {
+    in_allowed_x.push_back(car->number);
+    car->check_for_remove = true;
+  }
+}
+
+void Road::notify_remove(Car *car) {
+  in_allowed_x.erase(std::remove(in_allowed_x.begin(), in_allowed_x.end(), car->number), in_allowed_x.end()); 
+  car->check_for_remove = false;
+}

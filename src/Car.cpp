@@ -114,14 +114,15 @@ bool Car::is_in_allowed_x(int position) {
 
     if (current_x >= allowed_x_start && current_x <= allowed_x_end) {
       if (position == 0) {
-        road->notify_add(this->number);
+        road->notify_add(this);
       }
 
       return true;
     }
   }
 
-  road->notify_remove(this->number);
+  if (this->check_for_remove == true)
+    road->notify_remove(this);
 
   return false;
 }

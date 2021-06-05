@@ -35,4 +35,6 @@ public:
   float current_y = 0 + PADDING_Y;
   int number = 0;
   bool finished = false;
+  bool is_in_allowed = false;
+  bool check_for_remove = false;
 };
