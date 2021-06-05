@@ -5,6 +5,7 @@
 #include <mutex>
 #include <thread>
 #include <vector>
+#include "RoadWatcher.h"
 
 using namespace std;
 
@@ -14,7 +15,6 @@ enum class Axis;
 
 class Road {
 private:
-  vector<Car *> cars;
   thread *t_spawn_car;
 
   void spawn_car();
@@ -25,13 +25,20 @@ public:
   Road(int x, int y);
   ~Road();
 
+  vector<Car *> cars;
   vector<pair<int, int>> allowed_x;
   vector<pair<int, int>> allowed_y;
+  RoadWatcher* road_watcher;
 
   atomic_bool stop_flag{};
   mutex mtx;
   int x = 0;
   int y = 0;
+
+  void notify_add(int number);
+  void notify_remove(int number);
+  
+  vector<int> in_allowed_x;
 
   void draw();
   void stop();

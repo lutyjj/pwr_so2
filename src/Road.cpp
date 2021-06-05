@@ -3,6 +3,8 @@
 #include <ncurses.h>
 #include <random>
 #include <vector>
+#include <algorithm>
+#include "RoadWatcher.h"
 
 Road::Road(int x, int y) {
   this->x = x;
@@ -12,6 +14,8 @@ Road::Road(int x, int y) {
   this->allowed_x.emplace_back(x / 5, x / 2);
   this->allowed_y.emplace_back(y / 4, y / 2);
   this->allowed_y.emplace_back(y / 3, y - y / 5);
+
+  this->road_watcher = new RoadWatcher(x / 4, x - x / 4, this);
 
   t_spawn_car = new thread([this]() { spawn_car(); });
 }
@@ -147,4 +151,13 @@ void Road::stop() {
   mtx.unlock();
 
   delete this;
+}
+
+void Road::notify_add(int number) {
+  if(find(in_allowed_x.begin(), in_allowed_x.end(), number) == in_allowed_x.end())
+    in_allowed_x.push_back(number);
+}
+
+void Road::notify_remove(int number) {
+  in_allowed_x.erase(std::remove(in_allowed_x.begin(), in_allowed_x.end(), number), in_allowed_x.end()); 
 }

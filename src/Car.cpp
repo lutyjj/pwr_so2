@@ -3,6 +3,7 @@
 #include <mutex>
 #include <ncurses.h>
 #include <random>
+#include <algorithm>
 
 Car::Car(int number, Road *road) {
   this->number = number;
@@ -52,8 +53,9 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
   case Axis::x_positive:
   case Axis::y_positive:
     while (*current_point < end_point && !road->stop_flag) {
-      if (is_in_allowed_x(0) || is_in_allowed_y(0))
+      if (is_in_allowed_x(0) || is_in_allowed_y(0)) {
         base_speed = speed;
+      }
       else {
         auto found_speed = nearest_car_speed(axis);
         base_speed = found_speed < speed ? found_speed : speed;
@@ -70,8 +72,9 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
   case Axis::x_negative:
   case Axis::y_negative:
     while (*current_point > end_point && !road->stop_flag) {
-      if (is_in_allowed_x(1) || is_in_allowed_y(1))
+      if (is_in_allowed_x(1) || is_in_allowed_y(1)) {
         base_speed = speed;
+      }
       else {
         auto found_speed = nearest_car_speed(axis);
         base_speed = found_speed < speed ? found_speed : speed;
@@ -109,9 +112,16 @@ bool Car::is_in_allowed_x(int position) {
     auto allowed_x_start = road->allowed_x[position].first;
     auto allowed_x_end = road->allowed_x[position].second;
 
-    if (current_x >= allowed_x_start && current_x <= allowed_x_end)
+    if (current_x >= allowed_x_start && current_x <= allowed_x_end) {
+      if (position == 0) {
+        road->notify_add(this->number);
+      }
+
       return true;
+    }
   }
+
+  road->notify_remove(this->number);
 
   return false;
 }
