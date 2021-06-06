@@ -1,9 +1,9 @@
 #include "Car.h"
 #include "Road.h"
+#include <algorithm>
 #include <mutex>
 #include <ncurses.h>
 #include <random>
-#include <algorithm>
 
 Car::Car(int number, Road *road) {
   this->number = number;
@@ -58,14 +58,9 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
         if (road->is_blocked_x(0) || road->is_blocked_y(0)) {
           base_speed = 0;
         }
-      }
-      else {
+      } else {
         auto found_speed = nearest_car_speed(axis);
         base_speed = found_speed < speed ? found_speed : speed;
-
-        // if (road->is_blocked_x(0) || road->is_blocked_y(0)) {
-        //   base_speed = 0;
-        // }
       }
 
       *current_point += base_speed * multiplier;
@@ -85,14 +80,9 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
         if (road->is_blocked_x(1) || road->is_blocked_y(1)) {
           base_speed = 0;
         }
-      }
-      else {
+      } else {
         auto found_speed = nearest_car_speed(axis);
         base_speed = found_speed < speed ? found_speed : speed;
-
-        // if (road->is_blocked_x(0) || road->is_blocked_y(0)) {
-        //   base_speed = 0;
-        // }
       }
 
       *current_point -= base_speed * multiplier;

@@ -1,10 +1,10 @@
 #include "Road.h"
 #include "Car.h"
+#include "RoadWatcher.h"
+#include <algorithm>
 #include <ncurses.h>
 #include <random>
 #include <vector>
-#include <algorithm>
-#include "RoadWatcher.h"
 
 Road::Road(int x, int y) {
   this->x = x;
@@ -105,7 +105,7 @@ void Road::spawn_car() {
 }
 
 void Road::watch_segments() {
-  while(!this->stop_flag) {
+  while (!this->stop_flag) {
     for (int i = 0; i < in_allowed_x.size(); i++) {
       if (in_allowed_x[i].size() >= 2)
         blocked_x[i] = true;
@@ -186,33 +186,37 @@ void Road::stop() {
 }
 
 void Road::notify_add_x(Car *car, int position) {
-  if(find(in_allowed_x[position].begin(), in_allowed_x[position].end(), car->number) == in_allowed_x[position].end()) {
+  if (find(in_allowed_x[position].begin(), in_allowed_x[position].end(),
+           car->number) == in_allowed_x[position].end()) {
     in_allowed_x[position].push_back(car->number);
     car->check_for_remove_x = true;
   }
 }
 
 void Road::notify_remove_x(Car *car, int position) {
-  in_allowed_x[position].erase(std::remove(in_allowed_x[position].begin(), in_allowed_x[position].end(), car->number), in_allowed_x[position].end()); 
+  in_allowed_x[position].erase(std::remove(in_allowed_x[position].begin(),
+                                           in_allowed_x[position].end(),
+                                           car->number),
+                               in_allowed_x[position].end());
   car->check_for_remove_x = false;
 }
 
 void Road::notify_add_y(Car *car, int position) {
-  if(find(in_allowed_y[position].begin(), in_allowed_y[position].end(), car->number) == in_allowed_y[position].end()) {
+  if (find(in_allowed_y[position].begin(), in_allowed_y[position].end(),
+           car->number) == in_allowed_y[position].end()) {
     in_allowed_y[position].push_back(car->number);
     car->check_for_remove_y = true;
   }
 }
 
 void Road::notify_remove_y(Car *car, int position) {
-  in_allowed_y[position].erase(std::remove(in_allowed_y[position].begin(), in_allowed_y[position].end(), car->number), in_allowed_y[position].end()); 
+  in_allowed_y[position].erase(std::remove(in_allowed_y[position].begin(),
+                                           in_allowed_y[position].end(),
+                                           car->number),
+                               in_allowed_y[position].end());
   car->check_for_remove_y = false;
 }
 
-bool Road::is_blocked_x(int position) {
-  return blocked_x[position];
-}
+bool Road::is_blocked_x(int position) { return blocked_x[position]; }
 
-bool Road::is_blocked_y(int position) {
-  return blocked_y[position];
-}
+bool Road::is_blocked_y(int position) { return blocked_y[position]; }

@@ -39,7 +39,7 @@ public:
 
   void notify_add_y(Car *car, int position);
   void notify_remove_y(Car *car, int position);
-  
+
   bool is_blocked_x(int position);
   bool is_blocked_y(int position);
 
