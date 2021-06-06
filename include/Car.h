@@ -36,5 +36,7 @@ public:
   int number = 0;
   bool finished = false;
   bool is_in_allowed = false;
-  bool check_for_remove = false;
+
+  bool check_for_remove_x = false;
+  bool check_for_remove_y = false;
 };

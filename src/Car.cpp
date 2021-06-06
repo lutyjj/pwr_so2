@@ -55,10 +55,17 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
     while (*current_point < end_point && !road->stop_flag) {
       if (is_in_allowed_x(0) || is_in_allowed_y(0)) {
         base_speed = speed;
+        if (road->is_blocked_x(0) || road->is_blocked_y(0)) {
+          base_speed = 0;
+        }
       }
       else {
         auto found_speed = nearest_car_speed(axis);
         base_speed = found_speed < speed ? found_speed : speed;
+
+        // if (road->is_blocked_x(0) || road->is_blocked_y(0)) {
+        //   base_speed = 0;
+        // }
       }
 
       *current_point += base_speed * multiplier;
@@ -74,10 +81,18 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
     while (*current_point > end_point && !road->stop_flag) {
       if (is_in_allowed_x(1) || is_in_allowed_y(1)) {
         base_speed = speed;
+
+        if (road->is_blocked_x(1) || road->is_blocked_y(1)) {
+          base_speed = 0;
+        }
       }
       else {
         auto found_speed = nearest_car_speed(axis);
         base_speed = found_speed < speed ? found_speed : speed;
+
+        // if (road->is_blocked_x(0) || road->is_blocked_y(0)) {
+        //   base_speed = 0;
+        // }
       }
 
       *current_point -= base_speed * multiplier;
@@ -113,16 +128,13 @@ bool Car::is_in_allowed_x(int position) {
     auto allowed_x_end = road->allowed_x[position].second;
 
     if (current_x >= allowed_x_start && current_x <= allowed_x_end) {
-      if (position == 0) {
-        road->notify_add(this);
-      }
-
+      road->notify_add_x(this, position);
       return true;
     }
   }
 
-  if (this->check_for_remove == true)
-    road->notify_remove(this);
+  if (this->check_for_remove_x == true)
+    road->notify_remove_x(this, position);
 
   return false;
 }
@@ -132,9 +144,14 @@ bool Car::is_in_allowed_y(int position) {
     auto allowed_y_start = road->allowed_y[position].first;
     auto allowed_y_end = road->allowed_y[position].second;
 
-    if (current_y >= allowed_y_start && current_y <= allowed_y_end)
+    if (current_y >= allowed_y_start && current_y <= allowed_y_end) {
+      road->notify_add_y(this, position);
       return true;
+    }
   }
+
+  if (this->check_for_remove_y == true)
+    road->notify_remove_y(this, position);
 
   return false;
 }

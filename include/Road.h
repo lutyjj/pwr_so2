@@ -1,11 +1,9 @@
 #pragma once
 
 #include <atomic>
-#include <list>
 #include <mutex>
 #include <thread>
 #include <vector>
-#include "RoadWatcher.h"
 
 using namespace std;
 
@@ -16,8 +14,10 @@ enum class Axis;
 class Road {
 private:
   thread *t_spawn_car;
+  thread *t_allowed_road_watcher;
 
   void spawn_car();
+  void watch_segments();
   static void draw_rectangle(int y1, int x1, int y2, int x2);
   static void draw_green_rectangle(int x1, int x2, int y1, int y2);
 
@@ -28,19 +28,26 @@ public:
   vector<Car *> cars;
   vector<pair<int, int>> allowed_x;
   vector<pair<int, int>> allowed_y;
-  RoadWatcher* road_watcher;
 
   atomic_bool stop_flag{};
   mutex mtx;
   int x = 0;
   int y = 0;
 
-  void notify_add(int number);
-  void notify_remove(int number);
-  void notify_add(Car *car);
-  void notify_remove(Car *car);
+  void notify_add_x(Car *car, int position);
+  void notify_remove_x(Car *car, int position);
+
+  void notify_add_y(Car *car, int position);
+  void notify_remove_y(Car *car, int position);
   
-  vector<int> in_allowed_x;
+  bool is_blocked_x(int position);
+  bool is_blocked_y(int position);
+
+  vector<vector<int>> in_allowed_x;
+  vector<vector<int>> in_allowed_y;
+
+  vector<bool> blocked_x;
+  vector<bool> blocked_y;
 
   void draw();
   void stop();

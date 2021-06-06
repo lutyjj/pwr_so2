@@ -1,22 +1,24 @@
 #pragma once
 #include <thread>
 #include <list>
+#include <vector>
 
 using namespace std;
 
 struct Car;
 struct Road;
+enum class Axis;
 
 struct RoadWatcher
 {
-    thread *t_car_watcher;
-    list<Car*> car_query;
-    void query(Car* car);
-    void watch();
     int start, end;
-    Road *road;
+    Axis axis;
 
-    void remove(Car* car);
+    vector<Car*> car_query;
+    Road *road;
+    
+    void notify_add(Car *car);
+    void notify_remove(Car *car);
 
     RoadWatcher(int start, int end, Road *road);
     ~RoadWatcher();
