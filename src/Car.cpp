@@ -93,6 +93,9 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
 
           if (found_speed == 0 && !road->is_blocked(axis))
             found_speed = speed;
+        }
+
+        base_speed = found_speed < speed ? found_speed : speed;
       }
 
       *current_point -= base_speed * multiplier;
