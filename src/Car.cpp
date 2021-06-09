@@ -58,12 +58,12 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
       } else {
         float found_speed;
 
-        if (road->is_blocked(axis) && is_near_start(axis, *current_point, 3)) {
+        if (road->is_blocked(axis) && is_near_start(axis, *current_point)) {
           found_speed = 0;
         } else {
           found_speed = nearest_car_speed(axis);
 
-          if (found_speed == 0 && is_near_start(axis, *current_point, 7))
+          if (found_speed == 0 && !road->is_blocked(axis))
             found_speed = speed;
         }
 
@@ -84,8 +84,15 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
       if (is_in_allowed_x(1) || is_in_allowed_y(1)) {
         base_speed = speed;
       } else {
-        auto found_speed = nearest_car_speed(axis);
-        base_speed = found_speed < speed ? found_speed : speed;
+        float found_speed;
+
+        if (road->is_blocked(axis) && is_near_start(axis, *current_point)) {
+          found_speed = 0;
+        } else {
+          found_speed = nearest_car_speed(axis);
+
+          if (found_speed == 0 && !road->is_blocked(axis))
+            found_speed = speed;
       }
 
       *current_point -= base_speed * multiplier;

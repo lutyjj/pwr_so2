@@ -45,8 +45,8 @@ public:
   vector<vector<int>> in_allowed_x;
   vector<vector<int>> in_allowed_y;
 
-  vector<bool> blocked_x;
-  vector<bool> blocked_y;
+  vector<pair<bool, int>> blocked_x;
+  vector<pair<bool, int>> blocked_y;
 
   void draw();
   void stop();

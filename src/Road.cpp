@@ -24,10 +24,10 @@ Road::Road(int x, int y) {
   this->in_allowed_y.emplace_back(v_y1);
   this->in_allowed_y.emplace_back(v_y2);
 
-  blocked_x.emplace_back(false);
-  blocked_x.emplace_back(false);
-  blocked_y.emplace_back(false);
-  blocked_y.emplace_back(false);
+  blocked_x.emplace_back(false, 0);
+  blocked_x.emplace_back(false, 0);
+  blocked_y.emplace_back(false, 0);
+  blocked_y.emplace_back(false, 0);
 
   t_spawn_car = new thread([this]() { spawn_car(); });
   t_allowed_road_watcher = new thread([this]() { watch_segments(); });
@@ -95,7 +95,7 @@ void Road::spawn_car() {
   uniform_int_distribution<> dist(1000, 4000);
 
   int count = 0;
-  while (!this->stop_flag && cars.size() < 5) //  && cars.size() < 10
+  while (!this->stop_flag && cars.size() < 10) //  && cars.size() < 10
   {
     count++;
     cars.push_back(new Car(count, this));
@@ -107,16 +107,18 @@ void Road::watch_segments() {
   while (!this->stop_flag) {
     for (int i = 0; i < in_allowed_x.size(); i++) {
       if (in_allowed_x[i].size() >= 2)
-        blocked_x[i] = true;
+        blocked_x[i].first = true;
       else
-        blocked_x[i] = false;
+        blocked_x[i].first = false;
+
+      blocked_x[i].second = in_allowed_x[i].size();
     }
 
     for (int i = 0; i < in_allowed_y.size(); i++) {
       if (in_allowed_y[i].size() >= 2)
-        blocked_y[i] = true;
+        blocked_y[i].first = true;
       else
-        blocked_y[i] = false;
+        blocked_y[i].first = false;
     }
   }
 }
@@ -219,19 +221,19 @@ void Road::notify_remove_y(Car *car, int position) {
 bool Road::is_blocked(Axis axis) {
   switch (axis) {
   case Axis::x_positive:
-    return blocked_x[0];
+    return blocked_x[0].first;
     break;
 
   case Axis::x_negative:
-    return blocked_x[1];
+    return blocked_x[1].first;
     break;
 
   case Axis::y_positive:
-    return blocked_y[0];
+    return blocked_y[0].first;
     break;
 
   case Axis::y_negative:
-    return blocked_y[1];
+    return blocked_y[1].first;
     break;
 
   default:
