@@ -10,5 +10,5 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 include_directories(include)
 
-add_executable(main.out src/main.cpp src/Road.cpp src/Car.cpp src/RoadWatcher.cpp)
+add_executable(main.out src/main.cpp src/Road.cpp src/Car.cpp)
 target_link_libraries(main.out ${CURSES_LIBRARIES} Threads::Threads)

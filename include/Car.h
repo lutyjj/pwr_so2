@@ -1,6 +1,7 @@
 #pragma once
 
 #include <thread>
+#include <mutex>
 
 #define PADDING_X 2
 #define PADDING_Y 1
@@ -18,6 +19,7 @@ private:
   thread *t;
   Road *road;
   Axis axis;
+  mutex mtx;
 
   void thread_func();
   void drive(int max_x, Axis axis, float mult_x);
@@ -39,4 +41,6 @@ public:
 
   bool check_for_remove_x = false;
   bool check_for_remove_y = false;
+
+  bool is_near_start(Axis axis, float current_point, int overhead = 3);
 };

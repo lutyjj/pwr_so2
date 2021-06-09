@@ -40,8 +40,7 @@ public:
   void notify_add_y(Car *car, int position);
   void notify_remove_y(Car *car, int position);
 
-  bool is_blocked_x(int position);
-  bool is_blocked_y(int position);
+  bool is_blocked(Axis axis);
 
   vector<vector<int>> in_allowed_x;
   vector<vector<int>> in_allowed_y;

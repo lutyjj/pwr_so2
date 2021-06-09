@@ -1,6 +1,5 @@
 #include "Road.h"
 #include "Car.h"
-#include "RoadWatcher.h"
 #include <algorithm>
 #include <ncurses.h>
 #include <random>
@@ -96,7 +95,7 @@ void Road::spawn_car() {
   uniform_int_distribution<> dist(1000, 4000);
 
   int count = 0;
-  while (!this->stop_flag && cars.size() < 10) //  && cars.size() < 10
+  while (!this->stop_flag && cars.size() < 5) //  && cars.size() < 10
   {
     count++;
     cars.push_back(new Car(count, this));
@@ -123,7 +122,7 @@ void Road::watch_segments() {
 }
 
 Car *Road::find_nearest_car(Car *param_car, Axis axis) {
-  Car *nearest_car;
+  Car *nearest_car = nullptr;
   float prev_nearest_max = INT32_MAX;
   float prev_nearest_min = -1;
 
@@ -217,6 +216,27 @@ void Road::notify_remove_y(Car *car, int position) {
   car->check_for_remove_y = false;
 }
 
-bool Road::is_blocked_x(int position) { return blocked_x[position]; }
+bool Road::is_blocked(Axis axis) {
+  switch (axis) {
+  case Axis::x_positive:
+    return blocked_x[0];
+    break;
 
-bool Road::is_blocked_y(int position) { return blocked_y[position]; }
+  case Axis::x_negative:
+    return blocked_x[1];
+    break;
+
+  case Axis::y_positive:
+    return blocked_y[0];
+    break;
+
+  case Axis::y_negative:
+    return blocked_y[1];
+    break;
+
+  default:
+    break;
+  }
+
+  return false;
+}

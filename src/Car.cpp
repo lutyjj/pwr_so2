@@ -55,11 +55,19 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
     while (*current_point < end_point && !road->stop_flag) {
       if (is_in_allowed_x(0) || is_in_allowed_y(0)) {
         base_speed = speed;
-        if (road->is_blocked_x(0) || road->is_blocked_y(0)) {
-          base_speed = 0;
-        }
       } else {
-        auto found_speed = nearest_car_speed(axis);
+        float found_speed;
+
+        if (road->is_blocked(axis) && is_near_start(axis, *current_point, 3)) {
+          found_speed = 0;
+        }
+        else {
+          found_speed = nearest_car_speed(axis);
+          
+          if (found_speed == 0 && is_near_start(axis, *current_point, 7))
+            found_speed = speed;
+        }       
+
         base_speed = found_speed < speed ? found_speed : speed;
       }
 
@@ -76,10 +84,6 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
     while (*current_point > end_point && !road->stop_flag) {
       if (is_in_allowed_x(1) || is_in_allowed_y(1)) {
         base_speed = speed;
-
-        if (road->is_blocked_x(1) || road->is_blocked_y(1)) {
-          base_speed = 0;
-        }
       } else {
         auto found_speed = nearest_car_speed(axis);
         base_speed = found_speed < speed ? found_speed : speed;
@@ -142,6 +146,35 @@ bool Car::is_in_allowed_y(int position) {
 
   if (this->check_for_remove_y == true)
     road->notify_remove_y(this, position);
+
+  return false;
+}
+
+bool Car::is_near_start(Axis axis, float current_point, int overhead = 3) {
+  switch (axis)
+  {
+  case Axis::x_positive:
+    if (current_point + overhead >= road->allowed_x[0].first && current_point < road->allowed_x[0].first)
+      return true;
+    break;
+  case Axis::x_negative:
+    if (current_point - overhead <= road->allowed_x[1].second && current_point > road->allowed_x[1].first)
+      return true;
+    break;
+  
+  case Axis::y_positive:
+    if (current_point + overhead >= road->allowed_y[0].first && current_point < road->allowed_y[0].first)
+      return true;
+    break;
+  case Axis::y_negative:
+    if (current_point - overhead <= road->allowed_y[1].second && current_point > road->allowed_y[1].first)
+      return true;
+    break;
+
+  default:
+    return false;
+    break;
+  }
 
   return false;
 }
