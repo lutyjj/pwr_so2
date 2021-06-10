@@ -13,6 +13,7 @@ enum class Axis;
 
 class Road {
 private:
+  vector<Car *> cars;
   thread *t_spawn_car;
   thread *t_allowed_road_watcher;
 
@@ -25,8 +26,6 @@ public:
   Road(int x, int y);
   ~Road();
 
-  vector<Car *> cars;
-  
   vector<pair<int, int>> allowed_x;
   vector<pair<int, int>> allowed_y;
 

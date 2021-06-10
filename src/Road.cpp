@@ -190,7 +190,8 @@ void Road::stop() {
 }
 
 void Road::notify_add_x(Car *car, int position) {
-  if (find(cars_in_allowed_x[position].begin(), cars_in_allowed_x[position].end(),
+  if (find(cars_in_allowed_x[position].begin(),
+           cars_in_allowed_x[position].end(),
            car->number) == cars_in_allowed_x[position].end()) {
     cars_in_allowed_x[position].push_back(car->number);
     car->check_for_remove_x = true;
@@ -198,15 +199,16 @@ void Road::notify_add_x(Car *car, int position) {
 }
 
 void Road::notify_remove_x(Car *car, int position) {
-  cars_in_allowed_x[position].erase(std::remove(cars_in_allowed_x[position].begin(),
-                                           cars_in_allowed_x[position].end(),
-                                           car->number),
-                               cars_in_allowed_x[position].end());
+  cars_in_allowed_x[position].erase(
+      std::remove(cars_in_allowed_x[position].begin(),
+                  cars_in_allowed_x[position].end(), car->number),
+      cars_in_allowed_x[position].end());
   car->check_for_remove_x = false;
 }
 
 void Road::notify_add_y(Car *car, int position) {
-  if (find(cars_in_allowed_y[position].begin(), cars_in_allowed_y[position].end(),
+  if (find(cars_in_allowed_y[position].begin(),
+           cars_in_allowed_y[position].end(),
            car->number) == cars_in_allowed_y[position].end()) {
     cars_in_allowed_y[position].push_back(car->number);
     car->check_for_remove_y = true;
@@ -214,10 +216,10 @@ void Road::notify_add_y(Car *car, int position) {
 }
 
 void Road::notify_remove_y(Car *car, int position) {
-  cars_in_allowed_y[position].erase(std::remove(cars_in_allowed_y[position].begin(),
-                                           cars_in_allowed_y[position].end(),
-                                           car->number),
-                               cars_in_allowed_y[position].end());
+  cars_in_allowed_y[position].erase(
+      std::remove(cars_in_allowed_y[position].begin(),
+                  cars_in_allowed_y[position].end(), car->number),
+      cars_in_allowed_y[position].end());
   car->check_for_remove_y = false;
 }
 

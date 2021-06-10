@@ -19,7 +19,6 @@ private:
   thread *t;
   Road *road;
   Axis axis;
-  mutex mtx;
 
   void thread_func();
   void drive(int max_x, Axis axis, float mult_x);
@@ -37,7 +36,6 @@ public:
   float current_y = 0 + PADDING_Y;
   int number = 0;
   bool finished = false;
-  bool is_in_allowed = false;
 
   bool check_for_remove_x = false;
   bool check_for_remove_y = false;
