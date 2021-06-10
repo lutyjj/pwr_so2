@@ -42,5 +42,5 @@ public:
   bool check_for_remove_x = false;
   bool check_for_remove_y = false;
 
-  bool is_near_start(Axis axis, float current_point, int overhead = 3);
+  bool is_near_start(Axis axis, float current_point, int overhead = 5);
 };

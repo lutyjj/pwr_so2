@@ -119,6 +119,8 @@ void Road::watch_segments() {
         blocked_y[i].first = true;
       else
         blocked_y[i].first = false;
+
+      blocked_y[i].second = in_allowed_x[i].size();
     }
   }
 }
@@ -241,4 +243,29 @@ bool Road::is_blocked(Axis axis) {
   }
 
   return false;
+}
+
+int Road::cars_on_segment(Axis axis) {
+  switch (axis) {
+  case Axis::x_positive:
+    return blocked_x[0].second;
+    break;
+
+  case Axis::x_negative:
+    return blocked_x[1].second;
+    break;
+
+  case Axis::y_positive:
+    return blocked_y[0].second;
+    break;
+
+  case Axis::y_negative:
+    return blocked_y[1].second;
+    break;
+
+  default:
+    break;
+  }
+
+  return 0;
 }

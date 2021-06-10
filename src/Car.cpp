@@ -12,7 +12,7 @@ Car::Car(int number, Road *road) {
 
   random_device rd;
   mt19937 rng(rd());
-  uniform_real_distribution<> dist(1, 3);
+  uniform_real_distribution<> dist(1, 2);
   this->speed = dist(rng);
 
   t = new thread([this]() { thread_func(); });
@@ -63,7 +63,7 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
         } else {
           found_speed = nearest_car_speed(axis);
 
-          if (found_speed == 0 && !road->is_blocked(axis))
+          if (found_speed == 0 && !road->is_blocked(axis) && road->cars_on_segment(axis) == 0)
             found_speed = speed;
         }
 
@@ -91,7 +91,7 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
         } else {
           found_speed = nearest_car_speed(axis);
 
-          if (found_speed == 0 && !road->is_blocked(axis))
+          if (found_speed == 0 && !road->is_blocked(axis) && road->cars_on_segment(axis) == 0)
             found_speed = speed;
         }
 
@@ -116,7 +116,7 @@ float Car::nearest_car_speed(Axis axis) {
 
   if (found_car) {
     if (!((axis == Axis::x_negative || axis == Axis::x_positive) &&
-          abs(found_car->current_x - current_x) > 6) &&
+          abs(found_car->current_x - current_x) > 8) &&
         !((axis == Axis::y_negative || axis == Axis::y_positive) &&
           abs(found_car->current_y - current_y) > 3))
       return found_car->base_speed;

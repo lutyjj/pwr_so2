@@ -41,6 +41,7 @@ public:
   void notify_remove_y(Car *car, int position);
 
   bool is_blocked(Axis axis);
+  int cars_on_segment(Axis axis);
 
   vector<vector<int>> in_allowed_x;
   vector<vector<int>> in_allowed_y;
