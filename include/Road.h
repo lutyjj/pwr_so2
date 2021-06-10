@@ -26,8 +26,12 @@ public:
   ~Road();
 
   vector<Car *> cars;
+  
   vector<pair<int, int>> allowed_x;
   vector<pair<int, int>> allowed_y;
+
+  vector<int> allowed_car_amount_x;
+  vector<int> allowed_car_amount_y;
 
   atomic_bool stop_flag{};
   mutex mtx;
@@ -43,11 +47,11 @@ public:
   bool is_blocked(Axis axis);
   int cars_on_segment(Axis axis);
 
-  vector<vector<int>> in_allowed_x;
-  vector<vector<int>> in_allowed_y;
+  vector<vector<int>> cars_in_allowed_x;
+  vector<vector<int>> cars_in_allowed_y;
 
-  vector<pair<bool, int>> blocked_x;
-  vector<pair<bool, int>> blocked_y;
+  vector<pair<bool, int>> blocked_segments_x;
+  vector<pair<bool, int>> blocked_segments_y;
 
   void draw();
   void stop();
