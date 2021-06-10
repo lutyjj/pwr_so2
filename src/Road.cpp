@@ -1,9 +1,9 @@
 #include "Road.h"
 #include "Car.h"
-#include <algorithm>
+
 #include <ncurses.h>
+#include <algorithm>
 #include <random>
-#include <vector>
 
 Road::Road(int x, int y) {
   this->x = x;
@@ -128,7 +128,7 @@ void Road::watch_segments() {
 
 Car *Road::find_nearest_car(Car *param_car, Axis axis) {
   Car *nearest_car = nullptr;
-  float prev_nearest_max = INT32_MAX;
+  float prev_nearest_max = param_car->base_speed * 100;
   float prev_nearest_min = -1;
 
   mtx.lock();

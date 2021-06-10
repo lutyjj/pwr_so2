@@ -1,7 +1,6 @@
 #pragma once
 
 #include <thread>
-#include <mutex>
 
 #define PADDING_X 2
 #define PADDING_Y 1

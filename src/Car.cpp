@@ -1,7 +1,6 @@
 #include "Car.h"
 #include "Road.h"
-#include <algorithm>
-#include <mutex>
+
 #include <ncurses.h>
 #include <random>
 
