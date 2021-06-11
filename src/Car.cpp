@@ -58,12 +58,9 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
         float found_speed;
 
         if (road->is_blocked(axis) && is_near_start(axis, *current_point)) {
-          found_speed = 0;
+          road->add_to_queue(this, axis);
         } else {
           found_speed = nearest_car_speed(axis);
-
-          if (found_speed == 0 && !road->is_blocked(axis))
-            found_speed = speed;
         }
 
         base_speed = found_speed < speed ? found_speed : speed;
@@ -85,13 +82,11 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
       } else {
         float found_speed;
 
-        if (road->is_blocked(axis) && is_near_start(axis, *current_point)) {
-          found_speed = 0;
+        if (road->is_blocked(axis) && is_near_start(axis, *current_point, 1)) {
+          auto last_car = road->last_car_in_queue(axis);
+          road->add_to_queue(this, axis);
         } else {
           found_speed = nearest_car_speed(axis);
-
-          if (found_speed == 0 && !road->is_blocked(axis))
-            found_speed = speed;
         }
 
         base_speed = found_speed < speed ? found_speed : speed;
@@ -124,6 +119,20 @@ float Car::nearest_car_speed(Axis axis) {
   return this->base_speed;
 }
 
+Car* Car::nearest_car(Axis axis) {
+  auto found_car = road->find_nearest_car(this, axis);
+
+  if (found_car) {
+    if (!((axis == Axis::x_negative || axis == Axis::x_positive) &&
+          abs(found_car->current_x - current_x) > 8) &&
+        !((axis == Axis::y_negative || axis == Axis::y_positive) &&
+          abs(found_car->current_y - current_y) > 3))
+      return found_car;
+  }
+
+  return nullptr;
+}
+
 bool Car::is_in_allowed_x(int position) {
   if (road->allowed_x.size()) {
     auto allowed_x_start = road->allowed_x[position].first;
@@ -135,9 +144,9 @@ bool Car::is_in_allowed_x(int position) {
     }
   }
 
-  if (this->check_for_remove_x == true)
+  if (this->check_for_remove_x == true) {
     road->notify_remove_x(this, position);
-
+  }
   return false;
 }
 
@@ -152,8 +161,9 @@ bool Car::is_in_allowed_y(int position) {
     }
   }
 
-  if (this->check_for_remove_y == true)
+  if (this->check_for_remove_y == true) {
     road->notify_remove_y(this, position);
+  }
 
   return false;
 }

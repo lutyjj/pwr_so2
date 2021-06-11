@@ -15,8 +15,8 @@ Road::Road(int x, int y) {
   this->allowed_y.emplace_back(y / 4, y / 2);
   this->allowed_y.emplace_back(y / 3, y - y / 3);
 
-  this->allowed_car_amount_x.emplace_back(3);
-  this->allowed_car_amount_x.emplace_back(2);
+  this->allowed_car_amount_x.emplace_back(1);
+  this->allowed_car_amount_x.emplace_back(1);
   this->allowed_car_amount_y.emplace_back(1);
   this->allowed_car_amount_y.emplace_back(1);
 
@@ -24,6 +24,11 @@ Road::Road(int x, int y) {
   this->cars_in_allowed_x.emplace_back();
   this->cars_in_allowed_y.emplace_back();
   this->cars_in_allowed_y.emplace_back();
+
+  this->car_queue_x.emplace_back();
+  this->car_queue_x.emplace_back();
+  this->car_queue_y.emplace_back();
+  this->car_queue_y.emplace_back();
 
   this->blocked_segments_x.emplace_back(false, 0);
   this->blocked_segments_x.emplace_back(false, 0);
@@ -93,10 +98,10 @@ void Road::draw_green_rectangle(int x1, int x2, int y1, int y2) {
 void Road::spawn_car() {
   random_device rd;
   mt19937 rng(rd());
-  uniform_int_distribution<> dist(1000, 4000);
+  uniform_int_distribution<> dist(2000, 4000);
 
   int count = 0;
-  while (!this->stop_flag && cars.size() < 10) //  && cars.size() < 10
+  while (!this->stop_flag) //  && cars.size() < 10
   {
     count++;
     cars.push_back(new Car(count, this));
@@ -104,22 +109,34 @@ void Road::spawn_car() {
   }
 }
 
+
+
 void Road::watch_segments() {
   while (!this->stop_flag) {
     for (int i = 0; i < cars_in_allowed_x.size(); i++) {
       if (cars_in_allowed_x[i].size() >= allowed_car_amount_x[i])
         blocked_segments_x[i].first = true;
-      else
+      else {
         blocked_segments_x[i].first = false;
 
+        if (car_queue_x[i].size() != 0) {
+          Car* car = car_queue_x[i].front();
+          car->mtx.unlock();
+
+          car_queue_x[i].erase(car_queue_x[i].begin());
+        }
+      }
+
       blocked_segments_x[i].second = cars_in_allowed_x[i].size();
+
     }
 
     for (int i = 0; i < cars_in_allowed_y.size(); i++) {
       if (cars_in_allowed_y[i].size() >= allowed_car_amount_y[i])
         blocked_segments_y[i].first = true;
-      else
+      else {
         blocked_segments_y[i].first = false;
+    }
 
       blocked_segments_y[i].second = cars_in_allowed_x[i].size();
     }
@@ -189,11 +206,66 @@ void Road::stop() {
   delete this;
 }
 
+void Road::add_to_queue(Car *car, Axis axis) {
+  car->mtx.lock();
+
+  switch (axis) {
+  case Axis::x_positive:
+    return car_queue_x[0].push_back(car);
+    break;
+
+  case Axis::x_negative:
+    return car_queue_x[1].push_back(car);
+    break;
+
+  case Axis::y_positive:
+    return car_queue_y[0].push_back(car);
+    break;
+
+  case Axis::y_negative:
+    return car_queue_y[1].push_back(car);
+    break;
+
+  default:
+    break;
+  }
+}
+
+Car* Road::last_car_in_queue(Axis axis) {
+  switch (axis) {
+  case Axis::x_positive:
+    if (car_queue_x[0].size() > 0)
+      return car_queue_x[0].back();
+    break;
+
+  case Axis::x_negative:
+    if (car_queue_x[1].size() > 0)
+      return car_queue_x[1].back();
+    break;
+
+  case Axis::y_positive:
+    if (car_queue_y[0].size() > 0)
+      return car_queue_y[0].back();
+    break;
+
+  case Axis::y_negative:
+    if (car_queue_y[1].size() > 0)
+      return car_queue_y[1].back();
+    break;
+
+  default:
+    break;
+  }
+
+  return nullptr;
+}
+
 void Road::notify_add_x(Car *car, int position) {
   if (find(cars_in_allowed_x[position].begin(),
            cars_in_allowed_x[position].end(),
-           car->number) == cars_in_allowed_x[position].end()) {
-    cars_in_allowed_x[position].push_back(car->number);
+           car) == cars_in_allowed_x[position].end()) {
+    cars_in_allowed_x[position].push_back(car);
+
     car->check_for_remove_x = true;
   }
 }
@@ -201,16 +273,18 @@ void Road::notify_add_x(Car *car, int position) {
 void Road::notify_remove_x(Car *car, int position) {
   cars_in_allowed_x[position].erase(
       std::remove(cars_in_allowed_x[position].begin(),
-                  cars_in_allowed_x[position].end(), car->number),
+                  cars_in_allowed_x[position].end(), car),
       cars_in_allowed_x[position].end());
+
   car->check_for_remove_x = false;
 }
 
 void Road::notify_add_y(Car *car, int position) {
   if (find(cars_in_allowed_y[position].begin(),
            cars_in_allowed_y[position].end(),
-           car->number) == cars_in_allowed_y[position].end()) {
-    cars_in_allowed_y[position].push_back(car->number);
+           car) == cars_in_allowed_y[position].end()) {
+    cars_in_allowed_y[position].push_back(car);
+
     car->check_for_remove_y = true;
   }
 }
@@ -218,8 +292,9 @@ void Road::notify_add_y(Car *car, int position) {
 void Road::notify_remove_y(Car *car, int position) {
   cars_in_allowed_y[position].erase(
       std::remove(cars_in_allowed_y[position].begin(),
-                  cars_in_allowed_y[position].end(), car->number),
+                  cars_in_allowed_y[position].end(), car),
       cars_in_allowed_y[position].end());
+
   car->check_for_remove_y = false;
 }
 

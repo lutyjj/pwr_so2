@@ -4,6 +4,12 @@
 // pewien odcinek, w którym jest dopuszczalne wyprzedzanie i tylko tam będą się
 // samochody wyprzedzały, a inaczej będą się trzymać jeden za drugim.
 
+// Jak na wjeździe do tych sekcji, gdzie jest wyprzedzanie możliwe, 
+// będzie więcej niż 3 czy 4 samochody (specyficzne dla każdej sekcji),
+// to samochody będą się ustawiały w kolejce jeden za drugim. 
+// I w momencie jak samochod będzie wyjeżdżał z tej sekcji krytycznej,
+// to zostanie wpuszczony następny pojazd z kolei.
+
 #include <chrono>
 #include <iostream>
 #include <ncurses.h>

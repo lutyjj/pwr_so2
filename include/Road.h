@@ -32,6 +32,10 @@ public:
   vector<int> allowed_car_amount_x;
   vector<int> allowed_car_amount_y;
 
+
+  vector<vector<Car*>> car_queue_x;
+  vector<vector<Car*>> car_queue_y;
+
   atomic_bool stop_flag{};
   mutex mtx;
   int x = 0;
@@ -46,8 +50,11 @@ public:
   bool is_blocked(Axis axis);
   int cars_on_segment(Axis axis);
 
-  vector<vector<int>> cars_in_allowed_x;
-  vector<vector<int>> cars_in_allowed_y;
+  void add_to_queue(Car* car, Axis axis);
+  Car* last_car_in_queue(Axis axis);
+
+  vector<vector<Car*>> cars_in_allowed_x;
+  vector<vector<Car*>> cars_in_allowed_y;
 
   vector<pair<bool, int>> blocked_segments_x;
   vector<pair<bool, int>> blocked_segments_y;

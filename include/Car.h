@@ -1,10 +1,11 @@
 #pragma once
 
 #include <thread>
+#include <mutex>
 
 #define PADDING_X 2
 #define PADDING_Y 1
-#define LOOPS 10
+#define LOOPS 3
 
 using namespace std;
 
@@ -25,10 +26,13 @@ private:
   bool is_in_allowed_y(int position);
   float nearest_car_speed(Axis axis);
 
+  Car* nearest_car(Axis axis);
+
 public:
   Car(int number, Road *road);
   ~Car();
 
+  mutex mtx;
   float speed = 0;
   float base_speed = 2;
   float current_x = 0 + PADDING_X;
