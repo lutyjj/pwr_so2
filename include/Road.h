@@ -4,7 +4,7 @@
 #include <mutex>
 #include <thread>
 #include <vector>
-
+#include <queue>
 #include <condition_variable>
 
 
@@ -30,7 +30,13 @@ public:
   ~Road();
 
 
-  condition_variable cv;
+  vector<queue<Car*>> qx;
+  vector<queue<Car*>> qy;
+
+  condition_variable cvx0;
+  condition_variable cvx1;
+  condition_variable cvy0;
+  condition_variable cvy1;
 
   vector<pair<int, int>> allowed_x;
   vector<pair<int, int>> allowed_y;

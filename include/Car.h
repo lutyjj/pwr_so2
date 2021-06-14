@@ -29,6 +29,8 @@ private:
 
   Car* nearest_car(Axis axis);
 
+  void check_for_sleep(Axis axis, int current_point);
+
 public:
   Car(int number, Road *road);
   ~Car();

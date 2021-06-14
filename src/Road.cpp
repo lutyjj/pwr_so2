@@ -26,6 +26,11 @@ Road::Road(int x, int y) {
   this->cars_in_allowed_y.emplace_back();
   this->cars_in_allowed_y.emplace_back();
 
+  this->qx.emplace_back();
+  this->qx.emplace_back();
+  this->qy.emplace_back();
+  this->qy.emplace_back();
+
   this->blocked_segments_x.emplace_back(false);
   this->blocked_segments_x.emplace_back(false);
   this->blocked_segments_y.emplace_back(false);
@@ -113,7 +118,6 @@ void Road::watch_segments() {
       }
       else {
         blocked_segments_x[i] = false;
-        cv.notify_one();
       }
     }
 
@@ -197,6 +201,7 @@ void Road::notify_add_x(Car *car, int position) {
     cars_in_allowed_x[position].push_back(car);
 
     car->check_for_remove_x = true;
+    qx[position].push(car);
   }
 }
 
@@ -207,6 +212,20 @@ void Road::notify_remove_x(Car *car, int position) {
       cars_in_allowed_x[position].end());
 
   car->check_for_remove_x = false;
+  switch (position)
+  {
+  case 0:
+    cvx0.notify_one();
+    break;
+  
+  case 1:
+    cvx1.notify_one();
+    break;
+
+  default:
+    break;
+  }
+  qx[position].pop();
 }
 
 void Road::notify_add_y(Car *car, int position) {
@@ -216,6 +235,7 @@ void Road::notify_add_y(Car *car, int position) {
     cars_in_allowed_y[position].push_back(car);
 
     car->check_for_remove_y = true;
+    qy[position].push(car);
   }
 }
 
@@ -226,6 +246,20 @@ void Road::notify_remove_y(Car *car, int position) {
       cars_in_allowed_y[position].end());
 
   car->check_for_remove_y = false;
+  switch (position)
+  {
+  case 0:
+    cvy0.notify_one();
+    break;
+  
+  case 1:
+    cvy1.notify_one();
+    break;
+
+  default:
+    break;
+  }
+  qy[position].pop();
 }
 
 bool Road::is_blocked(Axis axis) {

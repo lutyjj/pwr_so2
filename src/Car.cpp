@@ -15,7 +15,6 @@ Car::Car(int number, Road *road) {
   this->speed = dist(rng);
 
   t = new thread([this]() { thread_func(); });
-
 }
 
 Car::~Car() {
@@ -41,8 +40,6 @@ void Car::thread_func() {
 }
 
 void Car::drive(int end_point, Axis axis, float multiplier) {
-  unique_lock<mutex> lk(mtx);
-
   float temp_speed;
   float *current_point;
 
@@ -58,8 +55,7 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
       if (is_in_allowed_x(0) || is_in_allowed_y(0)) {
         base_speed = speed;
       } else {
-        if(is_near_start(axis, *current_point))
-          road->cv.wait(lk, [&]{ return !road->is_blocked(axis); });
+        check_for_sleep(axis, *current_point);
 
         float found_speed;
         found_speed = nearest_car_speed(axis);
@@ -82,9 +78,6 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
         base_speed = speed;
       } else {
         float found_speed;
-
-        if(is_near_start(axis, *current_point))
-          road->cv.wait(lk, [&]{ return !road->is_blocked(axis); });
 
         found_speed = nearest_car_speed(axis);
 
@@ -183,4 +176,85 @@ bool Car::is_near_start(Axis axis, float current_point, int overhead) {
   }
 
   return false;
+}
+
+void Car::check_for_sleep(Axis axis, int current_point) {
+  unique_lock<mutex> lk(mtx);
+
+  if (is_near_start(axis, current_point)) {
+
+    switch(axis) {
+      case Axis::x_positive:
+        road->cvx0.wait(lk, [&] { return !road->is_blocked(axis); });
+
+        if (!road->qx[0].empty()) {
+          Car *test = road->qx[0].front();
+
+          while (road->qx[0].front() != this) {
+            road->cvx0.wait(lk, [&] { return !road->is_blocked(axis); });
+          }
+        }
+      break;
+
+      case Axis::x_negative:
+        road->cvx1.wait(lk, [&] { return !road->is_blocked(axis); });
+
+        if (!road->qx[1].empty()) {
+          Car *test = road->qx[1].front();
+
+          while (road->qx[1].front() != this) {
+            road->cvx1.wait(lk, [&] { return !road->is_blocked(axis); });
+          }
+        }
+
+        break;
+
+      case Axis::y_positive:
+        road->cvy0.wait(lk, [&] { return !road->is_blocked(axis); });
+
+        if (!road->qy[0].empty()) {
+          Car *test = road->qy[0].front();
+
+          while (road->qy[0].front() != this) {
+            road->cvy0.wait(lk, [&] { return !road->is_blocked(axis); });
+          }
+        }
+        break;
+
+      case Axis::y_negative:
+        road->cvy1.wait(lk, [&] { return !road->is_blocked(axis); });
+
+        if (!road->qy[1].empty()) {
+          Car *test = road->qy[1].front();
+
+          while (road->qy[1].front() != this) {
+            road->cvy1.wait(lk, [&] { return !road->is_blocked(axis); });
+          }
+        }
+
+        break;
+    }
+  }
+}
+
+void get_q(Axis axis) {
+switch (axis) {
+  case Axis::x_positive:
+
+    break;
+
+  case Axis::x_negative:
+
+    break;
+
+  case Axis::y_positive:
+
+    break;
+  case Axis::y_negative:
+
+    break;
+
+  default:
+    break;
+  }
 }
