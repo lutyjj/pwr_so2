@@ -26,10 +26,10 @@ Road::Road(int x, int y) {
   this->cars_in_allowed_y.emplace_back();
   this->cars_in_allowed_y.emplace_back();
 
-  this->blocked_segments_x.emplace_back(false, 0);
-  this->blocked_segments_x.emplace_back(false, 0);
-  this->blocked_segments_y.emplace_back(false, 0);
-  this->blocked_segments_y.emplace_back(false, 0);
+  this->blocked_segments_x.emplace_back(false);
+  this->blocked_segments_x.emplace_back(false);
+  this->blocked_segments_y.emplace_back(false);
+  this->blocked_segments_y.emplace_back(false);
 
   this->t_spawn_car = new thread([this]() { spawn_car(); });
   this->t_allowed_road_watcher = new thread([this]() { watch_segments(); });
@@ -109,25 +109,20 @@ void Road::watch_segments() {
   while (!this->stop_flag) {
     for (int i = 0; i < cars_in_allowed_x.size(); i++) {
       if (cars_in_allowed_x[i].size() >= allowed_car_amount_x[i]) {
-        blocked_segments_x[i].first = true;
+        blocked_segments_x[i] = true;
       }
       else {
-        blocked_segments_x[i].first = false;
+        blocked_segments_x[i] = false;
         cv.notify_one();
       }
-
-      blocked_segments_x[i].second = cars_in_allowed_x[i].size();
-
     }
 
     for (int i = 0; i < cars_in_allowed_y.size(); i++) {
       if (cars_in_allowed_y[i].size() >= allowed_car_amount_y[i])
-        blocked_segments_y[i].first = true;
+        blocked_segments_y[i] = true;
       else {
-        blocked_segments_y[i].first = false;
-    }
-
-      blocked_segments_y[i].second = cars_in_allowed_x[i].size();
+        blocked_segments_y[i] = false;
+      }
     }
   }
 }
@@ -236,19 +231,19 @@ void Road::notify_remove_y(Car *car, int position) {
 bool Road::is_blocked(Axis axis) {
   switch (axis) {
   case Axis::x_positive:
-    return blocked_segments_x[0].first;
+    return blocked_segments_x[0];
     break;
 
   case Axis::x_negative:
-    return blocked_segments_x[1].first;
+    return blocked_segments_x[1];
     break;
 
   case Axis::y_positive:
-    return blocked_segments_y[0].first;
+    return blocked_segments_y[0];
     break;
 
   case Axis::y_negative:
-    return blocked_segments_y[1].first;
+    return blocked_segments_y[1];
     break;
 
   default:

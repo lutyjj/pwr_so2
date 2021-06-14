@@ -58,8 +58,8 @@ public:
   vector<vector<Car*>> cars_in_allowed_x;
   vector<vector<Car*>> cars_in_allowed_y;
 
-  vector<pair<bool, int>> blocked_segments_x;
-  vector<pair<bool, int>> blocked_segments_y;
+  vector<bool> blocked_segments_x;
+  vector<bool> blocked_segments_y;
 
   void draw();
   void stop();
