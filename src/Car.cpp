@@ -15,6 +15,7 @@ Car::Car(int number, Road *road) {
   this->speed = dist(rng);
 
   t = new thread([this]() { thread_func(); });
+
 }
 
 Car::~Car() {
@@ -40,6 +41,8 @@ void Car::thread_func() {
 }
 
 void Car::drive(int end_point, Axis axis, float multiplier) {
+  unique_lock<mutex> lk(mtx);
+
   float temp_speed;
   float *current_point;
 
@@ -55,13 +58,11 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
       if (is_in_allowed_x(0) || is_in_allowed_y(0)) {
         base_speed = speed;
       } else {
-        float found_speed;
 
-        if (road->is_blocked(axis) && is_near_start(axis, *current_point)) {
-          road->add_to_queue(this, axis);
-        } else {
-          found_speed = nearest_car_speed(axis);
-        }
+        road->cv.wait(lk, [&]{ return !road->is_blocked(axis); });
+        float found_speed;
+        
+        found_speed = nearest_car_speed(axis);
 
         base_speed = found_speed < speed ? found_speed : speed;
       }
@@ -82,12 +83,9 @@ void Car::drive(int end_point, Axis axis, float multiplier) {
       } else {
         float found_speed;
 
-        if (road->is_blocked(axis) && is_near_start(axis, *current_point, 1)) {
-          auto last_car = road->last_car_in_queue(axis);
-          road->add_to_queue(this, axis);
-        } else {
-          found_speed = nearest_car_speed(axis);
-        }
+        road->cv.wait(lk, [&]{ return !road->is_blocked(axis); });
+
+        found_speed = nearest_car_speed(axis);
 
         base_speed = found_speed < speed ? found_speed : speed;
       }
@@ -117,20 +115,6 @@ float Car::nearest_car_speed(Axis axis) {
   }
 
   return this->base_speed;
-}
-
-Car* Car::nearest_car(Axis axis) {
-  auto found_car = road->find_nearest_car(this, axis);
-
-  if (found_car) {
-    if (!((axis == Axis::x_negative || axis == Axis::x_positive) &&
-          abs(found_car->current_x - current_x) > 8) &&
-        !((axis == Axis::y_negative || axis == Axis::y_positive) &&
-          abs(found_car->current_y - current_y) > 3))
-      return found_car;
-  }
-
-  return nullptr;
 }
 
 bool Car::is_in_allowed_x(int position) {

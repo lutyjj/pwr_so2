@@ -5,6 +5,9 @@
 #include <thread>
 #include <vector>
 
+#include <condition_variable>
+
+
 using namespace std;
 
 class Car;
@@ -26,15 +29,14 @@ public:
   Road(int x, int y);
   ~Road();
 
+
+  condition_variable cv;
+
   vector<pair<int, int>> allowed_x;
   vector<pair<int, int>> allowed_y;
 
   vector<int> allowed_car_amount_x;
   vector<int> allowed_car_amount_y;
-
-
-  vector<vector<Car*>> car_queue_x;
-  vector<vector<Car*>> car_queue_y;
 
   atomic_bool stop_flag{};
   mutex mtx;

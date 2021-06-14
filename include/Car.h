@@ -20,6 +20,7 @@ private:
   Road *road;
   Axis axis;
 
+
   void thread_func();
   void drive(int max_x, Axis axis, float mult_x);
   bool is_in_allowed_x(int position);
@@ -33,6 +34,7 @@ public:
   ~Car();
 
   mutex mtx;
+
   float speed = 0;
   float base_speed = 2;
   float current_x = 0 + PADDING_X;

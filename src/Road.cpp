@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <random>
 
+
 Road::Road(int x, int y) {
   this->x = x;
   this->y = y;
@@ -24,11 +25,6 @@ Road::Road(int x, int y) {
   this->cars_in_allowed_x.emplace_back();
   this->cars_in_allowed_y.emplace_back();
   this->cars_in_allowed_y.emplace_back();
-
-  this->car_queue_x.emplace_back();
-  this->car_queue_x.emplace_back();
-  this->car_queue_y.emplace_back();
-  this->car_queue_y.emplace_back();
 
   this->blocked_segments_x.emplace_back(false, 0);
   this->blocked_segments_x.emplace_back(false, 0);
@@ -101,7 +97,7 @@ void Road::spawn_car() {
   uniform_int_distribution<> dist(2000, 4000);
 
   int count = 0;
-  while (!this->stop_flag) //  && cars.size() < 10
+  while (!this->stop_flag && cars.size() < 10) //  && cars.size() < 10
   {
     count++;
     cars.push_back(new Car(count, this));
@@ -109,22 +105,15 @@ void Road::spawn_car() {
   }
 }
 
-
-
 void Road::watch_segments() {
   while (!this->stop_flag) {
     for (int i = 0; i < cars_in_allowed_x.size(); i++) {
-      if (cars_in_allowed_x[i].size() >= allowed_car_amount_x[i])
+      if (cars_in_allowed_x[i].size() >= allowed_car_amount_x[i]) {
         blocked_segments_x[i].first = true;
+      }
       else {
         blocked_segments_x[i].first = false;
-
-        if (car_queue_x[i].size() != 0) {
-          Car* car = car_queue_x[i].front();
-          car->mtx.unlock();
-
-          car_queue_x[i].erase(car_queue_x[i].begin());
-        }
+        cv.notify_one();
       }
 
       blocked_segments_x[i].second = cars_in_allowed_x[i].size();
@@ -206,60 +195,6 @@ void Road::stop() {
   delete this;
 }
 
-void Road::add_to_queue(Car *car, Axis axis) {
-  car->mtx.lock();
-
-  switch (axis) {
-  case Axis::x_positive:
-    return car_queue_x[0].push_back(car);
-    break;
-
-  case Axis::x_negative:
-    return car_queue_x[1].push_back(car);
-    break;
-
-  case Axis::y_positive:
-    return car_queue_y[0].push_back(car);
-    break;
-
-  case Axis::y_negative:
-    return car_queue_y[1].push_back(car);
-    break;
-
-  default:
-    break;
-  }
-}
-
-Car* Road::last_car_in_queue(Axis axis) {
-  switch (axis) {
-  case Axis::x_positive:
-    if (car_queue_x[0].size() > 0)
-      return car_queue_x[0].back();
-    break;
-
-  case Axis::x_negative:
-    if (car_queue_x[1].size() > 0)
-      return car_queue_x[1].back();
-    break;
-
-  case Axis::y_positive:
-    if (car_queue_y[0].size() > 0)
-      return car_queue_y[0].back();
-    break;
-
-  case Axis::y_negative:
-    if (car_queue_y[1].size() > 0)
-      return car_queue_y[1].back();
-    break;
-
-  default:
-    break;
-  }
-
-  return nullptr;
-}
-
 void Road::notify_add_x(Car *car, int position) {
   if (find(cars_in_allowed_x[position].begin(),
            cars_in_allowed_x[position].end(),
@@ -321,29 +256,4 @@ bool Road::is_blocked(Axis axis) {
   }
 
   return false;
-}
-
-int Road::cars_on_segment(Axis axis) {
-  switch (axis) {
-  case Axis::x_positive:
-    return blocked_segments_x[0].second;
-    break;
-
-  case Axis::x_negative:
-    return blocked_segments_x[1].second;
-    break;
-
-  case Axis::y_positive:
-    return blocked_segments_y[0].second;
-    break;
-
-  case Axis::y_negative:
-    return blocked_segments_y[1].second;
-    break;
-
-  default:
-    break;
-  }
-
-  return 0;
 }
