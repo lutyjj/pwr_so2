@@ -1,10 +1,9 @@
 #include "Road.h"
 #include "Car.h"
 
-#include <ncurses.h>
 #include <algorithm>
+#include <ncurses.h>
 #include <random>
-
 
 Road::Road(int x, int y) {
   this->x = x;
@@ -16,10 +15,10 @@ Road::Road(int x, int y) {
   this->allowed_y.emplace_back(y / 4, y / 2);
   this->allowed_y.emplace_back(y / 3, y - y / 3);
 
-  this->allowed_car_amount_x.emplace_back(1);
-  this->allowed_car_amount_x.emplace_back(1);
-  this->allowed_car_amount_y.emplace_back(1);
-  this->allowed_car_amount_y.emplace_back(1);
+  this->allowed_car_amount_x.emplace_back(4);
+  this->allowed_car_amount_x.emplace_back(3);
+  this->allowed_car_amount_y.emplace_back(2);
+  this->allowed_car_amount_y.emplace_back(2);
 
   this->cars_in_allowed_x.emplace_back();
   this->cars_in_allowed_x.emplace_back();
@@ -47,7 +46,7 @@ Road::~Road() {
 
   t_spawn_car->join();
   t_allowed_road_watcher->join();
-  
+
   blocked_segments_x[0] = false;
   blocked_segments_x[1] = false;
   blocked_segments_y[0] = false;
@@ -127,8 +126,7 @@ void Road::watch_segments() {
     for (int i = 0; i < cars_in_allowed_x.size(); i++) {
       if (cars_in_allowed_x[i].size() >= allowed_car_amount_x[i]) {
         blocked_segments_x[i] = true;
-      }
-      else {
+      } else {
         blocked_segments_x[i] = false;
       }
     }
@@ -145,7 +143,7 @@ void Road::watch_segments() {
 
 Car *Road::find_nearest_car(Car *param_car, Axis axis) {
   Car *nearest_car = nullptr;
-  float prev_nearest_max = param_car->base_speed * 100;
+  float prev_nearest_max = 10000;
   float prev_nearest_min = -1;
 
   mtx.lock();
@@ -224,12 +222,11 @@ void Road::notify_remove_x(Car *car, int position) {
 
   car->check_for_remove_x = false;
 
-  switch (position)
-  {
+  switch (position) {
   case 0:
     cvx0.notify_one();
     break;
-  
+
   case 1:
     cvx1.notify_one();
     break;
@@ -257,12 +254,11 @@ void Road::notify_remove_y(Car *car, int position) {
 
   car->check_for_remove_y = false;
 
-  switch (position)
-  {
+  switch (position) {
   case 0:
     cvy0.notify_one();
     break;
-  
+
   case 1:
     cvy1.notify_one();
     break;
@@ -297,10 +293,8 @@ bool Road::is_blocked(Axis axis) {
   return false;
 }
 
-
-void Road::add_to_queue(Car* car, Axis axis) {
-  switch (axis)
-  {
+void Road::add_to_queue(Car *car, Axis axis) {
+  switch (axis) {
   case Axis::x_positive:
     return qx[0].push(car);
     break;
@@ -316,15 +310,14 @@ void Road::add_to_queue(Car* car, Axis axis) {
   case Axis::y_negative:
     return qy[1].push(car);
     break;
-  
+
   default:
     break;
   }
 }
 
 void Road::remove_from_queue(Axis axis) {
-    switch (axis)
-  {
+  switch (axis) {
   case Axis::x_positive:
     return qx[0].pop();
     break;
@@ -340,7 +333,7 @@ void Road::remove_from_queue(Axis axis) {
   case Axis::y_negative:
     return qy[1].pop();
     break;
-  
+
   default:
     break;
   }

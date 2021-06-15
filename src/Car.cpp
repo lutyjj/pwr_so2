@@ -145,7 +145,7 @@ bool Car::is_in_allowed_y(int position) {
   return false;
 }
 
-Car* Car::nearest_car(Axis axis) {
+Car *Car::nearest_car(Axis axis) {
   auto found_car = road->find_nearest_car(this, axis);
 
   if (found_car) {
@@ -158,7 +158,6 @@ Car* Car::nearest_car(Axis axis) {
 
   return nullptr;
 }
-
 
 bool Car::is_near_start(Axis axis, float current_point, int overhead) {
   switch (axis) {
@@ -196,7 +195,7 @@ void Car::check_for_sleep(Axis axis, int current_point) {
   unique_lock<mutex> lk(mtx);
 
   condition_variable *cv;
-  queue<Car*> *q;
+  queue<Car *> *q;
 
   switch (axis) {
   case Axis::x_positive:
@@ -222,8 +221,8 @@ void Car::check_for_sleep(Axis axis, int current_point) {
   default:
     break;
   }
-  
-  Car* car;
+
+  Car *car;
 
   if (road->is_blocked(axis)) {
     if (q->size() == 0) {
@@ -232,8 +231,7 @@ void Car::check_for_sleep(Axis axis, int current_point) {
         cv->wait(lk, [&] { return !road->is_blocked(axis); });
         road->remove_from_queue(axis);
       }
-    }
-    else {
+    } else {
       car = nearest_car(axis);
 
       if (car != nullptr) {

@@ -1,12 +1,11 @@
 #pragma once
 
 #include <atomic>
+#include <condition_variable>
 #include <mutex>
+#include <queue>
 #include <thread>
 #include <vector>
-#include <queue>
-#include <condition_variable>
-
 
 using namespace std;
 
@@ -20,6 +19,15 @@ private:
   thread *t_spawn_car;
   thread *t_allowed_road_watcher;
 
+  vector<vector<Car *>> cars_in_allowed_x;
+  vector<vector<Car *>> cars_in_allowed_y;
+
+  vector<int> allowed_car_amount_x;
+  vector<int> allowed_car_amount_y;
+  
+  vector<bool> blocked_segments_x;
+  vector<bool> blocked_segments_y;
+
   void spawn_car();
   void watch_segments();
   static void draw_rectangle(int y1, int x1, int y2, int x2);
@@ -29,9 +37,8 @@ public:
   Road(int x, int y);
   ~Road();
 
-
-  vector<queue<Car*>> qx;
-  vector<queue<Car*>> qy;
+  vector<queue<Car *>> qx;
+  vector<queue<Car *>> qy;
 
   condition_variable cvx0;
   condition_variable cvx1;
@@ -40,9 +47,6 @@ public:
 
   vector<pair<int, int>> allowed_x;
   vector<pair<int, int>> allowed_y;
-
-  vector<int> allowed_car_amount_x;
-  vector<int> allowed_car_amount_y;
 
   atomic_bool stop_flag{};
   mutex mtx;
@@ -56,18 +60,9 @@ public:
   void notify_remove_y(Car *car, int position);
 
   bool is_blocked(Axis axis);
-  int cars_on_segment(Axis axis);
 
-  void add_to_queue(Car* car, Axis axis);
+  void add_to_queue(Car *car, Axis axis);
   void remove_from_queue(Axis axis);
-
-  Car* last_car_in_queue(Axis axis);
-
-  vector<vector<Car*>> cars_in_allowed_x;
-  vector<vector<Car*>> cars_in_allowed_y;
-
-  vector<bool> blocked_segments_x;
-  vector<bool> blocked_segments_y;
 
   void draw();
   void stop();
