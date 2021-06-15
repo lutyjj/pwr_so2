@@ -145,6 +145,21 @@ bool Car::is_in_allowed_y(int position) {
   return false;
 }
 
+Car* Car::nearest_car(Axis axis) {
+  auto found_car = road->find_nearest_car(this, axis);
+
+  if (found_car) {
+    if (!((axis == Axis::x_negative || axis == Axis::x_positive) &&
+          abs(found_car->current_x - current_x) > 5) &&
+        !((axis == Axis::y_negative || axis == Axis::y_positive) &&
+          abs(found_car->current_y - current_y) > 3))
+      return found_car;
+  }
+
+  return nullptr;
+}
+
+
 bool Car::is_near_start(Axis axis, float current_point, int overhead) {
   switch (axis) {
   case Axis::x_positive:
@@ -208,18 +223,24 @@ void Car::check_for_sleep(Axis axis, int current_point) {
     break;
   }
   
-  if (is_near_start(axis, current_point)){
-    if (road->is_blocked(axis)) {
-      
-      road->add_to_queue(this, axis);
+  Car* car;
 
-      cv->wait(lk, [&] { return !road->is_blocked(axis); });
-
-      while (q->front() != this) {
-          cv->wait(lk, [&] { return !road->is_blocked(axis); });
+  if (road->is_blocked(axis)) {
+    if (q->size() == 0) {
+      if (is_near_start(axis, current_point)) {
+        road->add_to_queue(this, axis);
+        cv->wait(lk, [&] { return !road->is_blocked(axis); });
+        road->remove_from_queue(axis);
       }
+    }
+    else {
+      car = nearest_car(axis);
 
-      road->remove_from_queue(axis);
+      if (car != nullptr) {
+        road->add_to_queue(this, axis);
+        cv->wait(lk, [&] { return !road->is_blocked(axis); });
+        road->remove_from_queue(axis);
+      }
     }
   }
 }

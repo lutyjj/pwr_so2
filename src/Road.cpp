@@ -16,8 +16,8 @@ Road::Road(int x, int y) {
   this->allowed_y.emplace_back(y / 4, y / 2);
   this->allowed_y.emplace_back(y / 3, y - y / 3);
 
-  this->allowed_car_amount_x.emplace_back(2);
-  this->allowed_car_amount_x.emplace_back(2);
+  this->allowed_car_amount_x.emplace_back(4);
+  this->allowed_car_amount_x.emplace_back(3);
   this->allowed_car_amount_y.emplace_back(2);
   this->allowed_car_amount_y.emplace_back(2);
 
