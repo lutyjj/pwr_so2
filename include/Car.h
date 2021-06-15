@@ -5,7 +5,7 @@
 
 #define PADDING_X 2
 #define PADDING_Y 1
-#define LOOPS 10
+#define LOOPS 3
 
 using namespace std;
 
@@ -18,7 +18,7 @@ private:
   int loop = 0;
   float speed = 0;
   float base_speed = 2;
-  
+
   Road *road;
   Axis axis;
   thread *t;
@@ -35,7 +35,7 @@ private:
 public:
   Car(int number, Road *road);
   ~Car();
-  
+
   float current_x = 0 + PADDING_X;
   float current_y = 0 + PADDING_Y;
   int number = 0;

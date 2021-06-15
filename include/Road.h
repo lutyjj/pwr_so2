@@ -24,7 +24,7 @@ private:
 
   vector<int> allowed_car_amount_x;
   vector<int> allowed_car_amount_y;
-  
+
   vector<bool> blocked_segments_x;
   vector<bool> blocked_segments_y;
 

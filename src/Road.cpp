@@ -110,10 +110,10 @@ void Road::draw_green_rectangle(int x1, int x2, int y1, int y2) {
 void Road::spawn_car() {
   random_device rd;
   mt19937 rng(rd());
-  uniform_int_distribution<> dist(2000, 4000);
+  uniform_int_distribution<> dist(3000, 5000);
 
   int count = 0;
-  while (!this->stop_flag && cars.size() < 20) //  && cars.size() < 10
+  while (!this->stop_flag)
   {
     count++;
     cars.push_back(new Car(count, this));
