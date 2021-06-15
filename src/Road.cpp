@@ -16,10 +16,10 @@ Road::Road(int x, int y) {
   this->allowed_y.emplace_back(y / 4, y / 2);
   this->allowed_y.emplace_back(y / 3, y - y / 3);
 
-  this->allowed_car_amount_x.emplace_back(1);
-  this->allowed_car_amount_x.emplace_back(1);
-  this->allowed_car_amount_y.emplace_back(1);
-  this->allowed_car_amount_y.emplace_back(1);
+  this->allowed_car_amount_x.emplace_back(2);
+  this->allowed_car_amount_x.emplace_back(2);
+  this->allowed_car_amount_y.emplace_back(2);
+  this->allowed_car_amount_y.emplace_back(2);
 
   this->cars_in_allowed_x.emplace_back();
   this->cars_in_allowed_x.emplace_back();
@@ -201,7 +201,6 @@ void Road::notify_add_x(Car *car, int position) {
     cars_in_allowed_x[position].push_back(car);
 
     car->check_for_remove_x = true;
-    qx[position].push(car);
   }
 }
 
@@ -212,6 +211,7 @@ void Road::notify_remove_x(Car *car, int position) {
       cars_in_allowed_x[position].end());
 
   car->check_for_remove_x = false;
+
   switch (position)
   {
   case 0:
@@ -225,7 +225,6 @@ void Road::notify_remove_x(Car *car, int position) {
   default:
     break;
   }
-  qx[position].pop();
 }
 
 void Road::notify_add_y(Car *car, int position) {
@@ -235,7 +234,6 @@ void Road::notify_add_y(Car *car, int position) {
     cars_in_allowed_y[position].push_back(car);
 
     car->check_for_remove_y = true;
-    qy[position].push(car);
   }
 }
 
@@ -246,6 +244,7 @@ void Road::notify_remove_y(Car *car, int position) {
       cars_in_allowed_y[position].end());
 
   car->check_for_remove_y = false;
+
   switch (position)
   {
   case 0:
@@ -259,7 +258,6 @@ void Road::notify_remove_y(Car *car, int position) {
   default:
     break;
   }
-  qy[position].pop();
 }
 
 bool Road::is_blocked(Axis axis) {
@@ -285,4 +283,53 @@ bool Road::is_blocked(Axis axis) {
   }
 
   return false;
+}
+
+
+void Road::add_to_queue(Car* car, Axis axis) {
+  switch (axis)
+  {
+  case Axis::x_positive:
+    return qx[0].push(car);
+    break;
+
+  case Axis::x_negative:
+    return qx[1].push(car);
+    break;
+
+  case Axis::y_positive:
+    return qy[0].push(car);
+    break;
+
+  case Axis::y_negative:
+    return qy[1].push(car);
+    break;
+  
+  default:
+    break;
+  }
+}
+
+void Road::remove_from_queue(Axis axis) {
+    switch (axis)
+  {
+  case Axis::x_positive:
+    return qx[0].pop();
+    break;
+
+  case Axis::x_negative:
+    return qx[1].pop();
+    break;
+
+  case Axis::y_positive:
+    return qy[0].pop();
+    break;
+
+  case Axis::y_negative:
+    return qy[1].pop();
+    break;
+  
+  default:
+    break;
+  }
 }

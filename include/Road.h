@@ -59,6 +59,8 @@ public:
   int cars_on_segment(Axis axis);
 
   void add_to_queue(Car* car, Axis axis);
+  void remove_from_queue(Axis axis);
+
   Car* last_car_in_queue(Axis axis);
 
   vector<vector<Car*>> cars_in_allowed_x;

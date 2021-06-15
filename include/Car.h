@@ -5,7 +5,7 @@
 
 #define PADDING_X 2
 #define PADDING_Y 1
-#define LOOPS 3
+#define LOOPS 10
 
 using namespace std;
 
@@ -18,7 +18,6 @@ private:
   int loop = 0;
   thread *t;
   Road *road;
-  Axis axis;
 
 
   void thread_func();
@@ -34,6 +33,7 @@ private:
 public:
   Car(int number, Road *road);
   ~Car();
+  Axis axis;
 
   mutex mtx;
 
