@@ -237,9 +237,7 @@ void Car::check_for_sleep(Axis axis, int current_point) {
       car = nearest_car(axis);
 
       if (car != nullptr) {
-        road->add_to_queue(this, axis);
         cv->wait(lk, [&] { return !road->is_blocked(axis); });
-        road->remove_from_queue(axis);
       }
     }
   }

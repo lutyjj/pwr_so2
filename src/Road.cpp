@@ -16,10 +16,10 @@ Road::Road(int x, int y) {
   this->allowed_y.emplace_back(y / 4, y / 2);
   this->allowed_y.emplace_back(y / 3, y - y / 3);
 
-  this->allowed_car_amount_x.emplace_back(4);
-  this->allowed_car_amount_x.emplace_back(3);
-  this->allowed_car_amount_y.emplace_back(2);
-  this->allowed_car_amount_y.emplace_back(2);
+  this->allowed_car_amount_x.emplace_back(1);
+  this->allowed_car_amount_x.emplace_back(1);
+  this->allowed_car_amount_y.emplace_back(1);
+  this->allowed_car_amount_y.emplace_back(1);
 
   this->cars_in_allowed_x.emplace_back();
   this->cars_in_allowed_x.emplace_back();
@@ -46,9 +46,21 @@ Road::~Road() {
   refresh();
 
   t_spawn_car->join();
+  t_allowed_road_watcher->join();
+  
+  blocked_segments_x[0] = false;
+  blocked_segments_x[1] = false;
+  blocked_segments_y[0] = false;
+  blocked_segments_y[1] = false;
 
-  for (auto car : cars)
+  cvx0.notify_all();
+  cvx1.notify_all();
+  cvy0.notify_all();
+  cvy1.notify_all();
+
+  for (auto car : cars) {
     delete car;
+  }
 
   cars.clear();
 }
@@ -102,7 +114,7 @@ void Road::spawn_car() {
   uniform_int_distribution<> dist(2000, 4000);
 
   int count = 0;
-  while (!this->stop_flag && cars.size() < 10) //  && cars.size() < 10
+  while (!this->stop_flag && cars.size() < 20) //  && cars.size() < 10
   {
     count++;
     cars.push_back(new Car(count, this));

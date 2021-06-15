@@ -16,7 +16,6 @@ enum class Axis { x_positive, x_negative, y_positive, y_negative };
 class Car {
 private:
   int loop = 0;
-  thread *t;
   Road *road;
 
 
@@ -34,6 +33,7 @@ public:
   Car(int number, Road *road);
   ~Car();
   Axis axis;
+  thread *t;
 
   mutex mtx;
 
